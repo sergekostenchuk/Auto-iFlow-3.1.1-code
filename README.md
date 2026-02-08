@@ -41,37 +41,14 @@ Original project: https://github.com/AndyMik90/Auto-Claude
 ### Stable Release
 
 <!-- STABLE_VERSION_BADGE -->
-[![Stable](https://img.shields.io/badge/stable-3.0.1-blue?style=flat-square)](https://github.com/sergekostenchuk/Auto-iFlow/releases/tag/v3.0.1)
+[![Stable](https://img.shields.io/badge/stable-3.1.1-blue?style=flat-square)](https://github.com/sergekostenchuk/Auto-iFlow-3.1.1-code/releases/tag/v3.1.1)
 <!-- STABLE_VERSION_BADGE_END -->
 
 <!-- STABLE_DOWNLOADS -->
-| Platform | Download |
-|----------|----------|
-| **Windows** | [Auto-iFlow-3.0.1-win32-x64.exe](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v3.0.1/Auto-iFlow-3.0.1-win32-x64.exe) |
-| **macOS (Apple Silicon)** | [Auto-iFlow-3.0.1-darwin-arm64.dmg](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v3.0.1/Auto-iFlow-3.0.1-darwin-arm64.dmg) |
-| **macOS (Intel)** | [Auto-iFlow-3.0.1-darwin-x64.dmg](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v3.0.1/Auto-iFlow-3.0.1-darwin-x64.dmg) |
-| **Linux** | [Auto-iFlow-3.0.1-linux-x86_64.AppImage](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v3.0.1/Auto-iFlow-3.0.1-linux-x86_64.AppImage) |
-| **Linux (Debian)** | [Auto-iFlow-3.0.1-linux-amd64.deb](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v3.0.1/Auto-iFlow-3.0.1-linux-amd64.deb) |
+| Version | Download |
+|---------|----------|
+| **3.1.1** | [View release assets](https://github.com/sergekostenchuk/Auto-iFlow-3.1.1-code/releases/tag/v3.1.1) |
 <!-- STABLE_DOWNLOADS_END -->
-
-### Beta Release
-
-> ⚠️ Beta releases may contain bugs and breaking changes. [View all releases](https://github.com/sergekostenchuk/Auto-iFlow/releases)
-
-<!-- BETA_VERSION_BADGE -->
-[![Beta](https://img.shields.io/badge/beta-2.7.2--beta.10-orange?style=flat-square)](https://github.com/sergekostenchuk/Auto-iFlow/releases/tag/v2.7.2-beta.10)
-<!-- BETA_VERSION_BADGE_END -->
-
-<!-- BETA_DOWNLOADS -->
-| Platform | Download |
-|----------|----------|
-| **Windows** | [Auto-iFlow-2.7.2-beta.10-win32-x64.exe](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v2.7.2-beta.10/Auto-iFlow-2.7.2-beta.10-win32-x64.exe) |
-| **macOS (Apple Silicon)** | [Auto-iFlow-2.7.2-beta.10-darwin-arm64.dmg](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v2.7.2-beta.10/Auto-iFlow-2.7.2-beta.10-darwin-arm64.dmg) |
-| **macOS (Intel)** | [Auto-iFlow-2.7.2-beta.10-darwin-x64.dmg](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v2.7.2-beta.10/Auto-iFlow-2.7.2-beta.10-darwin-x64.dmg) |
-| **Linux** | [Auto-iFlow-2.7.2-beta.10-linux-x86_64.AppImage](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v2.7.2-beta.10/Auto-iFlow-2.7.2-beta.10-linux-x86_64.AppImage) |
-| **Linux (Debian)** | [Auto-iFlow-2.7.2-beta.10-linux-amd64.deb](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v2.7.2-beta.10/Auto-iFlow-2.7.2-beta.10-linux-amd64.deb) |
-| **Linux (Flatpak)** | [Auto-iFlow-2.7.2-beta.10-linux-x86_64.flatpak](https://github.com/sergekostenchuk/Auto-iFlow/releases/download/v2.7.2-beta.10/Auto-iFlow-2.7.2-beta.10-linux-x86_64.flatpak) |
-<!-- BETA_DOWNLOADS_END -->
 
 > All releases include SHA256 checksums and VirusTotal scan results for security verification.
 
