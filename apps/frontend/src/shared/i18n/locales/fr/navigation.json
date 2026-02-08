@@ -1,0 +1,79 @@
+{
+  "sections": {
+    "project": "Projet",
+    "sandboxes": "Bacs à sable",
+    "tools": "Outils"
+  },
+  "items": {
+    "kanban": "Tableau Kanban",
+    "terminals": "Terminaux Agent",
+    "insights": "Insights",
+    "roadmap": "Feuille de route",
+    "ideation": "Idéation",
+    "importTaskPlan": "Importer un plan de tâches",
+    "changelog": "Journal des modifications",
+    "context": "Contexte",
+    "githubIssues": "Issues GitHub",
+    "githubPRs": "PRs GitHub",
+    "gitlabIssues": "Issues GitLab",
+    "gitlabMRs": "MRs GitLab",
+    "worktrees": "Worktrees",
+    "agentTools": "Aperçu MCP",
+    "tetris": "Tetris"
+  },
+  "actions": {
+    "settings": "Paramètres",
+    "help": "Aide & Feedback",
+    "newTask": "Nouvelle tâche"
+  },
+  "labels": {
+    "sandbox": "Sandbox"
+  },
+  "tooltips": {
+    "settings": "Paramètres de l'application",
+    "help": "Aide & Feedback"
+  },
+  "messages": {
+    "initializeToCreateTasks": "Initialisez Auto-iFlow pour créer des tâches"
+  },
+  "claudeCode": {
+    "checking": "Vérification du CLI iFlow...",
+    "upToDate": "Le CLI iFlow est à jour",
+    "updateAvailable": "Mise à jour du CLI iFlow disponible",
+    "notInstalled": "CLI iFlow non installé",
+    "error": "Erreur de vérification du CLI iFlow",
+    "installed": "Installé",
+    "outdated": "Mise à jour disponible",
+    "missing": "Non installé",
+    "current": "Actuelle",
+    "latest": "Dernière",
+    "lastChecked": "Dernière vérification",
+    "learnMore": "En savoir plus sur le CLI iFlow",
+    "learnMoreAriaLabel": "En savoir plus sur le CLI iFlow (s'ouvre dans une nouvelle fenêtre)",
+    "updateWarningTitle": "Mettre à jour le CLI iFlow ?",
+    "updateWarningDescription": "La mise à jour fermera toutes les sessions du CLI iFlow en cours. Tout travail non sauvegardé dans ces sessions pourrait être perdu. Assurez-vous de sauvegarder votre travail avant de continuer.",
+    "updateAnyway": "Mettre à jour quand même"
+  },
+  "iflow": {
+    "checking": "Vérification d'iFlow...",
+    "ready": "iFlow est prêt",
+    "cliMissing": "CLI iFlow non installé",
+    "keyMissing": "Clé API iFlow non configurée",
+    "error": "Erreur de vérification d'iFlow",
+    "version": "Version",
+    "apiKey": "Clé API",
+    "authType": "Auth",
+    "authTypeApiKey": "Cle API",
+    "authTypeWeb": "Connexion web",
+    "authTypeOpenAI": "Compatible OpenAI",
+    "authTypeUnknown": "Inconnu",
+    "configured": "Configuré",
+    "notConfigured": "Non configuré",
+    "webLogin": "Connexion web",
+    "permissionMode": "Permission",
+    "model": "Modèle",
+    "lastChecked": "Dernière vérification",
+    "configure": "Configurer",
+    "configureHint": "Ajoutez votre clé API iFlow ou utilisez la connexion web dans Paramètres → Intégrations."
+  }
+}

@@ -1,0 +1,3 @@
+[submodule "TESTS-AUTO-IFLOW/auto-iflow-test"]
+	path = TESTS-AUTO-IFLOW/auto-iflow-test
+	url = https://github.com/sergekostenchuk/auto-iflow-test.git

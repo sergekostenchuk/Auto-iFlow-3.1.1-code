@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto‑iFlow — Deep Dive (Matrix)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --black: #000000;
+      --near-black: #0A0A0A;
+      --dark-gray: #1A1A1A;
+      --medium-gray: #2A2A2A;
+      --matrix: #00FF6A;
+      --matrix-soft: #00E65F;
+      --matrix-glow: #66FFB2;
+      --text: #FFFFFF;
+      --text-secondary: #999999;
+      --text-muted: #666666;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--black); color: var(--text); font-family: 'Space Grotesk', sans-serif; }
+    .page { width: 100%; }
+    .container { width: min(1100px, 92vw); margin: 0 auto; padding: 72px 0; }
+    h1 { font-size: 42px; color: var(--matrix); margin-bottom: 16px; }
+    h2 { font-size: 28px; color: var(--matrix); margin: 28px 0 10px; }
+    h3 { font-size: 20px; margin: 18px 0 8px; }
+    h4 { font-size: 17px; margin: 16px 0 6px; color: var(--matrix-soft); }
+    p { font-size: 16px; line-height: 1.7; color: var(--text-secondary); margin: 8px 0; }
+    a { color: var(--matrix); text-decoration: none; }
+    a:hover { color: var(--matrix-glow); }
+    strong { color: var(--text); }
+    em { color: var(--text-muted); }
+    ul { margin: 10px 0 16px 20px; color: var(--text-secondary); }
+    li { margin: 6px 0; }
+    blockquote { border-left: 2px solid var(--matrix); padding: 8px 14px; margin: 16px 0; background: #050505; color: var(--text-secondary); }
+    pre { background: #050505; border: 1px solid var(--dark-gray); padding: 16px; border-radius: 8px; overflow: auto; margin: 12px 0; }
+    code { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--matrix-glow); }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; font-size: 14px; }
+    th, td { border: 1px solid var(--dark-gray); padding: 10px; text-align: left; }
+    th { color: var(--matrix); background: #050505; }
+    td { color: var(--text-secondary); }
+    hr { border: none; border-top: 1px solid var(--dark-gray); margin: 24px 0; }
+    @media (max-width: 768px) {
+      h1 { font-size: 34px; }
+      h2 { font-size: 24px; }
+      .container { padding: 48px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="container">
+<h1>Auto-iFlow — Полный Разбор Системы</h1>
+
+<blockquote><strong>Цель:</strong> Сделать вас экспертом по Auto-iFlow через детальное изучение каждого компонента системы</blockquote>
+
+<p>---</p>
+
+<h2>📋 Оглавление</h2>
+
+<ul>
+<li><a href="#1-общий-обзор">Что такое Auto-iFlow — Общий обзор</a></li>
+<li><a href="#2-архитектура-системы">Архитектура системы</a></li>
+<li><a href="#3-kanban-workflow">Kanban Workflow — Жизненный цикл задачи</a></li>
+<li><a href="#4-sandbox-mode">Sandbox Mode — Изоляция задач</a></li>
+<li><a href="#5-consilium">Consilium — AI Инвестиционный комитет</a></li>
+<li><a href="#6-model-routing">Model Routing — Управление моделями</a></li>
+<li><a href="#7-qa-pipeline">QA Pipeline — Контроль качества</a></li>
+<li><a href="#8-security-model">Security Model — Безопасность</a></li>
+<li><a href="#9-структура-файлов">Структура файлов проекта</a></li>
+<li><a href="#10-практические-сценарии">Практические сценарии использования</a></li>
+<li><a href="#11-разбор-интерфейса">Разбор интерфейса</a></li>
+</ul>
+
+<p>---</p>
+
+<h2>1. Общий обзор</h2>
+
+<h3>Что это?</h3>
+
+<p><strong>Auto-iFlow</strong> — macOS приложение для автоматизации разработки с помощью AI-агентов. Это форк проекта <a href="https://github.com/AndyMik90/Auto-Claude">Auto-Claude</a> (лицензия AGPL-3.0).</p>
+
+<h3>Ключевая идея</h3>
+
+<p>Вместо того, чтобы вручную писать код по каждой задаче, вы:</p>
+<ul>
+<li><strong>Создаёте задачу</strong> в Kanban-доске (описание + контекст)</li>
+<li><strong>AI-агент</strong> автоматически:</li>
+<li>Создаёт спецификацию (`spec.md`)</li>
+<li>Планирует реализацию (`implementation_plan.json`)</li>
+<li>Пишет код в изолированном окружении (Sandbox)</li>
+<li>Проводит автоматическую проверку качества (QA)</li>
+<li><strong>Вы проверяете</strong> результат и мерджите в main</li>
+</ul>
+
+<h3>Три основные фичи</h3>
+
+<table>
+<thead><tr><th>Фича</th><th>Описание</th></tr></thead>
+<tbody>
+<tr><td><strong>Full Cycle Automation</strong></td><td>От идеи до production-ready кода</td></tr>
+<tr><td><strong>Sandbox Isolation</strong></td><td>Каждая задача работает в отдельном Git worktree — main ветка защищена</td></tr>
+<tr><td><strong>Consilium (AI Committee)</strong></td><td>"Инвестиционный комитет" из 3 AI-агентов для сложных решений</td></tr>
+</tbody>
+</table>
+<p>---</p>
+
+<h2>2. Архитектура системы</h2>
+
+<h3>Высокоуровневая структура</h3>
+
+<p>Auto-iFlow построен на <strong>Electron</strong> и состоит из двух процессов:</p>
+
+<pre><code>
+graph TB
+    subgraph Main["Main Process (Node.js)"]
+        IPC[IPC Handlers]
+        TM[Task Manager]
+        GIT[Git Operations]
+        QA[QA Engine]
+    end
+    
+    subgraph Renderer["Renderer Process (React)"]
+        KB[Kanban Board]
+        TD[Task Details]
+        SET[Settings]
+        RM[Roadmap/Ideation]
+    end
+    
+    subgraph External["External Integrations"]
+        AI[AI Models&lt;br/&gt;OpenRouter, GLM, Groq]
+        MCP[MCP Servers&lt;br/&gt;Context7, Linear, Browser]
+        MEM[Graphiti Memory]
+    end
+    
+    Renderer --&gt;|IPC| Main
+    Main --&gt;|API Calls| External
+</code></pre>
+
+<h3>Основные компоненты</h3>
+
+<h4>Main Process (Backend)</h4>
+
+<p>Локация: `/Users/kostenchuksergey/Auto-iFlow/apps/frontend/src/main/`</p>
+
+<table>
+<thead><tr><th>Компонент</th><th>Файлы</th><th>Функция</th></tr></thead>
+<tbody>
+<tr><td><strong>IPC Handlers</strong></td><td>`ipc-handlers/task/`</td><td>Обработка команд из UI (создание задач, старт/стоп, мердж)</td></tr>
+<tr><td><strong>Task Manager</strong></td><td>`task-manager.ts`</td><td>Управление жизненным циклом задач</td></tr>
+<tr><td><strong>Git Operations</strong></td><td>`ipc-handlers/task/worktree-handlers.ts`</td><td>Работа с Git worktrees (Sandbox)</td></tr>
+<tr><td><strong>QA Engine</strong></td><td>Python backend в `apps/backend/qa/`</td><td>Автоматическая проверка качества кода</td></tr>
+</tbody>
+</table>
+<h4>Renderer Process (Frontend)</h4>
+
+<p>Локация: `/Users/kostenchuksergey/Auto-iFlow/apps/frontend/src/renderer/`</p>
+
+<table>
+<thead><tr><th>Компонент</th><th>Папка</th><th>Функция</th></tr></thead>
+<tbody>
+<tr><td><strong>Kanban Board</strong></td><td>`components/kanban/`</td><td>Визуализация задач (Planning, In-Progress, Review, Done)</td></tr>
+<tr><td><strong>Task Details</strong></td><td>`components/task-detail/`</td><td>Просмотр спецификаций, планов, артефактов задачи</td></tr>
+<tr><td><strong>Settings</strong></td><td>`components/settings/`</td><td>Конфигурация API keys, MCP, профилей</td></tr>
+<tr><td><strong>Roadmap</strong></td><td>`components/roadmap/`</td><td>Генерация roadmap.json из AI анализа проекта</td></tr>
+</tbody>
+</table>
+<h4>External Integrations</h4>
+
+<table>
+<thead><tr><th>Интеграция</th><th>Назначение</th></tr></thead>
+<tbody>
+<tr><td><strong>OpenRouter/Groq/GLM</strong></td><td>API для выполнения AI запросов (разные модели для разных фаз)</td></tr>
+<tr><td><strong>MCP Servers</strong></td><td>Model Context Protocol — расширенный контекст (Context7, Linear, Browser)</td></tr>
+<tr><td><strong>Graphiti Memory</strong></td><td>Долгосрочная память AI агента</td></tr>
+</tbody>
+</table>
+<p>---</p>
+
+<h2>3. Kanban Workflow</h2>
+
+<h3>Жизненный цикл задачи</h3>
+
+<p>Каждая задача проходит через <strong>колонки Kanban-доски</strong>:</p>
+
+<pre><code>
+graph LR
+    A[Planning] --&gt; B[In-Progress]
+    B --&gt; C[In-Review]
+    C --&gt; D[Project Review]
+    D --&gt; E[Done]
+    C --&gt; F[Failed]
+</code></pre>
+
+<h3>Детальный разбор каждой колонки</h3>
+
+<h4>1. <strong>Planning</strong> (Планирование)</h4>
+
+<p><strong>Что происходит:</strong></p>
+<ul>
+<li>Пользователь создаёт задачу (описание, контекст, скриншоты)</li>
+<li>Задача попадает в Planning и ждёт старта</li>
+</ul>
+
+<p><strong>Файлы:</strong></p>
+<ul>
+<li>`.auto-iflow/specs/&lt;task-id&gt;/task_metadata.json` — метаданные задачи</li>
+</ul>
+
+<p><strong>Действия пользователя:</strong></p>
+<ul>
+<li>▶️ <strong>Start Task</strong> → задача переходит в In-Progress</li>
+</ul>
+
+<p>---</p>
+
+<h4>2. <strong>In-Progress</strong> (Выполнение)</h4>
+
+<p><strong>Что происходит (автоматически):</strong></p>
+
+<p>##### Phase 1: Spec Generation (Создание спецификации)</p>
+<p>AI-агент анализирует описание задачи и создаёт:</p>
+<ul>
+<li>`spec.md` — детальная спецификация</li>
+<li>`requirements.json` — структурированные требования</li>
+</ul>
+
+<p>##### Phase 2: Planning (Планирование реализации)</p>
+<p>AI создаёт:</p>
+<ul>
+<li>`implementation_plan.json` — пошаговый план с файлами для изменения</li>
+</ul>
+
+<p>##### Phase 3: Coding (Написание кода)</p>
+<ul>
+<li><strong>Если Sandbox включён:</strong> создаётся Git worktree в `.auto-iflow/worktrees/tasks/&lt;task-id&gt;/`</li>
+<li>AI-агент выполняет план, пишет код</li>
+<li>Все изменения <strong>изолированы</strong> от main ветки</li>
+</ul>
+
+<p>##### Phase 4: QA (Контроль качества)</p>
+<ul>
+<li>Запускается Python backend (`apps/backend/qa/`)</li>
+<li>Проверка кода (качество, безопасность, тесты)</li>
+<li>Генерация `qa_report.md`</li>
+</ul>
+
+<p><strong>Файлы создаются:</strong></p>
+<pre><code>
+.auto-iflow/specs/&lt;task-id&gt;/
+├── spec.md
+├── requirements.json
+├── implementation_plan.json
+├── task_metadata.json
+└── qa_report.md
+</code></pre>
+
+<p><strong>Переход:</strong> После QA → <strong>In-Review</strong></p>
+
+<p>---</p>
+
+<h4>3. <strong>In-Review</strong> (Проверка)</h4>
+
+<p><strong>Что происходит:</strong></p>
+<ul>
+<li>Пользователь проверяет артефакты (spec, plan, qa_report)</li>
+<li>Если Sandbox: просмотр <strong>Merge Preview</strong> (diff main ← task branch)</li>
+</ul>
+
+<p><strong>UI элементы:</strong></p>
+<ul>
+<li>📂 <strong>Files</strong> — артефакты задачи</li>
+<li>🔀 <strong>Merge Preview</strong> — diff изменений</li>
+<li>🛠️ <strong>Actions:</strong></li>
+<li>✅ <strong>Approve &amp; Merge</strong> → merge в main, cleanup sandbox</li>
+<li>🔁 <strong>Request Changes</strong> → возврат в In-Progress</li>
+<li>❌ <strong>Reject</strong> → Failed</li>
+</ul>
+
+<p><strong>Важные сценарии:</strong></p>
+
+<blockquote>[!WARNING]</blockquote>
+<blockquote><strong>Blocked Merge</strong> — если main в sandbox "грязный" (uncommitted changes), merge блокируется.</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>Fix actions</strong> (Stage 22):</blockquote>
+<blockquote>- Auto-commit `.gitignore` если это единственное изменение</blockquote>
+<blockquote>- Fix-меню с кнопками: commit, stash, refresh preview</blockquote>
+
+<p>---</p>
+
+<h4>4. <strong>Project Review</strong> (Финальная проверка)</h4>
+
+<p>Опциональная колонка для критичных задач (настраивается в project settings).</p>
+
+<p>---</p>
+
+<h4>5. <strong>Done</strong> (Завершено)</h4>
+
+<p>Задача выполнена:</p>
+<ul>
+<li>Код смержен в main</li>
+<li>Sandbox worktree удалён (если был)</li>
+<li>Артефакты сохранены в `.auto-iflow/specs/&lt;task-id&gt;/`</li>
+</ul>
+
+<p>---</p>
+
+<h4>6. <strong>Failed</strong> (Провалено)</h4>
+
+<p>Задача отклонена:</p>
+<ul>
+<li>Sandbox worktree удалён</li>
+<li>Артефакты сохранены для анализа</li>
+</ul>
+
+<p>---</p>
+
+<h2>4. Sandbox Mode</h2>
+
+<h3>Что это?</h3>
+
+<p><strong>Sandbox Mode</strong> — режим, при котором каждая задача выполняется в <strong>изолированном Git worktree</strong>. Это защищает main ветку от "поломки" во время разработки.</p>
+
+<h3>Как работает Git Worktree?</h3>
+
+<pre><code>
+# Обычный Git (без Sandbox)
+main/
+├── src/
+└── .git/
+
+# С Sandbox (Git Worktree)
+main/                          # ← основная ветка (защищена)
+├── src/
+└── .git/
+
+.auto-iflow/worktrees/tasks/task-123/  # ← отдельная рабочая копия
+├── src/
+└── .git/
+</code></pre>
+
+<p><strong>Преимущества:</strong></p>
+<ul>
+<li>✅ <strong>Main всегда стабильна</strong> — изменения не влияют на неё</li>
+<li>✅ <strong>Безопасное тестирование</strong> — можно экспериментировать</li>
+<li>✅ <strong>Лёгкий откат</strong> — просто удалить worktree</li>
+<li>✅ <strong>Параллельная работа</strong> — несколько задач одновременно</li>
+</ul>
+
+<h3>Жизненный цикл Sandbox</h3>
+
+<pre><code>
+sequenceDiagram
+    participant User
+    participant Main
+    participant Sandbox
+
+    User-&gt;&gt;Main: Start Task (Sandbox enabled)
+    Main-&gt;&gt;Sandbox: Create worktree&lt;br/&gt;.auto-iflow/worktrees/tasks/123
+    Sandbox-&gt;&gt;Sandbox: AI writes code (isolated)
+    Sandbox-&gt;&gt;Main: Merge Preview (diff)
+    User-&gt;&gt;Sandbox: Approve &amp; Merge
+    Sandbox-&gt;&gt;Main: Git merge
+    Main-&gt;&gt;Sandbox: Delete worktree
+</code></pre>
+
+<h3>Конфигурация</h3>
+
+<p>Sandbox включается через:</p>
+
+<p><strong>1. Global settings</strong> (для всех проектов):</p>
+<pre><code>
+// Settings → Sandbox
+sandboxTasksEnabled: true
+</code></pre>
+
+<p><strong>2. Environment variable</strong> (переопределение):</p>
+<pre><code>
+export AUTO_IFLOW_SANDBOX_TASKS=true
+</code></pre>
+
+<p><strong>3. Per-task</strong> (при создании задачи):</p>
+<ul>
+<li>Checkbox "Enable Sandbox" в Task Creation Wizard</li>
+</ul>
+
+<h3>Известные проблемы (из TASKS.md)</h3>
+
+<blockquote>[!CAUTION]</blockquote>
+<blockquote><strong>Stage 22-23:</strong> Sandbox иногда блокирует merge из-за "грязного" main</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>Причины:</strong></blockquote>
+<blockquote>- Backend дописывает `.gitignore` → main становится dirty</blockquote>
+<blockquote>- После merge остаются staged/unstaged файлы (README, `.auto-iflow-status`)</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>Решение (реализовано):</strong></blockquote>
+<blockquote>- Auto-commit `.gitignore` если это единственное изменение (preview + merge)</blockquote>
+<blockquote>- Auto-commit всех изменений в sandbox после merge</blockquote>
+<blockquote>- Fix-меню в UI с кнопками исправления</blockquote>
+
+<p>---</p>
+
+<h2>5. Consilium</h2>
+
+<h3>Что это?</h3>
+
+<p><strong>Consilium</strong> (от лат. "совет") — это <strong>AI Инвестиционный Комитет</strong> из 3 агентов, которые обсуждают сложные архитектурные решения перед началом разработки.</p>
+
+<h3>Зачем нужен?</h3>
+
+<p>Для задач с <strong>высоким риском</strong> (breaking changes, архитектура, миграции):</p>
+<ul>
+<li>❌ <strong>Без Consilium:</strong> AI сразу начинает писать код → может пойти не туда</li>
+<li>✅ <strong>С Consilium:</strong> сначала обсуждение подходов → выбор лучшего → код</li>
+</ul>
+
+<h3>Члены комитета</h3>
+
+<table>
+<thead><tr><th>Роль</th><th>Функция</th></tr></thead>
+<tbody>
+<tr><td><strong>Innovator</strong> (Новатор)</td><td>Предлагает разные подходы к решению задачи</td></tr>
+<tr><td><strong>Realist</strong> (Реалист)</td><td>Оценивает риски, feasibility, сложность реализации</td></tr>
+<tr><td><strong>Facilitator</strong> (Фасилитатор)</td><td>Контролирует фокус обсуждения, подводит итоги</td></tr>
+</tbody>
+</table>
+<h3>Workflow</h3>
+
+<pre><code>
+graph TD
+    A[Task starts] --&gt; B{High-risk?}
+    B --&gt;|Yes| C[Consilium Session]
+    B --&gt;|No| D[Direct to Spec]
+    
+    C --&gt; E[Innovator proposes approaches]
+    E --&gt; F[Realist evaluates risks]
+    F --&gt; G[Facilitator decides]
+    
+    G --&gt; H{Decision}
+    H --&gt;|Go| I[Spec → Plan → Code]
+    H --&gt;|Hold| J[Request more info]
+    H --&gt;|Revise| K[Refine approach]
+    H --&gt;|Kill| L[Reject task]
+</code></pre>
+
+<h3>Результаты Consilium</h3>
+
+<table>
+<thead><tr><th>Решение</th><th>Действие</th></tr></thead>
+<tbody>
+<tr><td><strong>Go</strong></td><td>Переход к Spec/Planning с выбранным подходом</td></tr>
+<tr><td><strong>Hold</strong></td><td>Задача на паузе — нужны дополнительные данные</td></tr>
+<tr><td><strong>Revise</strong></td><td>Подход требует доработки (новая итерация)</td></tr>
+<tr><td><strong>Kill</strong></td><td>Задача отклонена (слишком рискованно или нецелесообразно)</td></tr>
+</tbody>
+</table>
+<h3>Когда использовать?</h3>
+
+<ul>
+<li>Архитектурные изменения (новые модули, рефакторинг)</li>
+<li>Миграции (база данных, API)</li>
+<li>Breaking changes (публичный API)</li>
+<li>Выбор технологий (библиотеки, фреймворки)</li>
+</ul>
+
+<h3>Конфигурация</h3>
+
+<ul>
+<li>Settings → Consilium → Enable for high-risk tasks</li>
+<li>Per-task checkbox "Require Consilium approval"</li>
+</ul>
+
+<blockquote>[!NOTE]</blockquote>
+<blockquote>Consilium реализован в `apps/backend/consilium/` и интегрирован с task lifecycle через IPC handlers.</blockquote>
+
+<p>---</p>
+
+<h2>6. Model Routing</h2>
+
+<h3>Что это?</h3>
+
+<p><strong>Model Routing</strong> — система выбора <strong>разных AI моделей</strong> для разных <strong>фаз</strong> разработки и <strong>уровней</strong> конфигурации.</p>
+
+<h3>Зачем?</h3>
+
+<p>Разные задачи требуют разных моделей:</p>
+<ul>
+<li><strong>Spec/Planning</strong> → модель с хорошим reasoning (Claude Opus, GPT-4)</li>
+<li><strong>Coding</strong> → быстрая модель с большим контекстом (Claude Sonnet, Gemini)</li>
+<li><strong>QA</strong> → модель с focus на анализ (GPT-4, Claude)</li>
+</ul>
+
+<h3>3 уровня конфигурации</h3>
+
+<pre><code>
+graph TD
+    A[App-level config&lt;br/&gt;Defaults for all projects] --&gt; B{Project selected?}
+    B --&gt;|No| A
+    B --&gt;|Yes| C[Project-level config&lt;br/&gt;Override for specific project]
+    C --&gt; D{Task created?}
+    D --&gt;|No| C
+    D --&gt;|Yes| E[Task-level config&lt;br/&gt;Override for specific task]
+</code></pre>
+
+<p><strong>Приоритет:</strong> Task-level &gt; Project-level &gt; App-level</p>
+
+<h4>1. App-level (Global defaults)</h4>
+
+<p>Локация: Settings → Model Routing (global)</p>
+
+<pre><code>
+{
+  "spec": {
+    "profile": "openrouter",
+    "model": "anthropic/claude-3-opus-20240229"
+  },
+  "planning": {
+    "profile": "openrouter",
+    "model": "anthropic/claude-3-5-sonnet-20241022"
+  },
+  "coding": {
+    "profile": "groq",
+    "model": "llama-3.3-70b-versatile"
+  },
+  "qa": {
+    "profile": "openrouter",
+    "model": "anthropic/claude-3-5-sonnet-20241022"
+  }
+}
+</code></pre>
+
+<h4>2. Project-level (Per-project overrides)</h4>
+
+<p>Локация: `.auto-iflow/project_index.json`</p>
+
+<pre><code>
+{
+  "project_id": "auto-iflow-main",
+  "modelRouting": {
+    "coding": {
+      "profile": "glm",
+      "model": "glm-4-flash"
+    }
+  }
+}
+</code></pre>
+
+<h4>3. Task-level (Per-task overrides)</h4>
+
+<p>Локация: `.auto-iflow/specs/&lt;task-id&gt;/task_metadata.json`</p>
+
+<pre><code>
+{
+  "task_id": "task-123",
+  "modelRouting": {
+    "spec": {
+      "profile": "openrouter",
+      "model": "openai/gpt-4-turbo"
+    }
+  }
+}
+</code></pre>
+
+<h3>4 фазы выполнения</h3>
+
+<table>
+<thead><tr><th>Фаза</th><th>Назначение</th><th>Рекомендация</th></tr></thead>
+<tbody>
+<tr><td><strong>Spec</strong></td><td>Создание спецификации</td><td>Claude Opus (глубокое понимание)</td></tr>
+<tr><td><strong>Planning</strong></td><td>Планирование реализации</td><td>Claude Sonnet (баланс скорость/качество)</td></tr>
+<tr><td><strong>Coding</strong></td><td>Написание кода</td><td>Groq Llama 3.3 70B (скорость) или GLM-4-Flash</td></tr>
+<tr><td><strong>QA</strong></td><td>Проверка качества</td><td>Claude Sonnet (анализ кода)</td></tr>
+</tbody>
+</table>
+<h3>API Profiles</h3>
+
+<p>Локация: Settings → Integrations</p>
+
+<table>
+<thead><tr><th>Profile</th><th>Provider</th><th>Модели</th></tr></thead>
+<tbody>
+<tr><td><strong>openrouter</strong></td><td>OpenRouter</td><td>Claude, GPT-4, Gemini, и др.</td></tr>
+<tr><td><strong>groq</strong></td><td>Groq</td><td>Llama 3.1/3.3, Mixtral</td></tr>
+<tr><td><strong>glm</strong></td><td>GLM (Zhipu AI)</td><td>GLM-4-Flash, GLM-4-Plus</td></tr>
+<tr><td><strong>custom</strong></td><td>Custom endpoint</td><td>Любой OpenAI-совместимый API</td></tr>
+</tbody>
+</table>
+<h3>Конфигурация стоимости</h3>
+
+<p>Каждый профиль имеет настройки <strong>cost limits</strong>:</p>
+
+<pre><code>
+{
+  "profile": "openrouter",
+  "costLimits": {
+    "perTask": 0.50,      // макс $0.50 на задачу
+    "perPhase": {
+      "spec": 0.10,
+      "planning": 0.10,
+      "coding": 0.20,
+      "qa": 0.10
+    }
+  }
+}
+</code></pre>
+
+<blockquote>[!TIP]</blockquote>
+<blockquote><strong>Best practice:</strong> Используйте дешёвые/быстрые модели (Groq, GLM) для Coding, дорогие/умные (Claude Opus) для Spec/Planning.</blockquote>
+
+<p>---</p>
+
+<h2>7. QA Pipeline</h2>
+
+<h3>Что это?</h3>
+
+<p><strong>QA Pipeline</strong> — автоматическая проверка кода после фазы Coding, перед Review.</p>
+
+<h3>Архитектура</h3>
+
+<pre><code>
+graph LR
+    A[Code Complete] --&gt; B[QA Python Backend]
+    B --&gt; C[Code Quality]
+    B --&gt; D[Test Generation]
+    B --&gt; E[Security Scan]
+    B --&gt; F[Performance Check]
+    
+    C --&gt; G{Pass?}
+    D --&gt; G
+    E --&gt; G
+    F --&gt; G
+    
+    G --&gt;|Yes| H[Generate qa_report.md]
+    G --&gt;|No| I[Block merge]
+    
+    H --&gt; J[In-Review]
+</code></pre>
+
+<h3>Компоненты QA</h3>
+
+<p>Локация: `/Users/kostenchuksergey/Auto-iFlow/apps/backend/qa/`</p>
+
+<table>
+<thead><tr><th>Файл</th><th>Функция</th></tr></thead>
+<tbody>
+<tr><td>`criteria.py`</td><td>Определение критериев качества</td></tr>
+<tr><td>`loop.py`</td><td>Основной цикл QA проверки</td></tr>
+<tr><td>`test_graphiti.py`</td><td>Тесты для Graphiti интеграции</td></tr>
+</tbody>
+</table>
+<h3>Автоматические проверки</h3>
+
+<h4>1. Code Quality Analysis</h4>
+<ul>
+<li>Линтинг (eslint, prettier)</li>
+<li>Complexity metrics</li>
+<li>Code smells detection</li>
+</ul>
+
+<h4>2. Test Generation</h4>
+<ul>
+<li>Генерация unit тестов для новых функций</li>
+<li>Coverage анализ</li>
+</ul>
+
+<h4>3. Security Scan</h4>
+<ul>
+<li>Поиск уязвимостей (SQL injection, XSS)</li>
+<li>Secrets detection (hardcoded passwords, API keys)</li>
+</ul>
+
+<h4>4. Performance Check</h4>
+<ul>
+<li>Оптимизация запросов</li>
+<li>Memory leaks detection</li>
+</ul>
+
+<h3>Human Review Gate</h3>
+
+<p>Для <strong>критичных задач</strong> (breaking changes, security) QA может требовать <strong>Human Review</strong> перед merge:</p>
+
+<pre><code>
+{
+  "qa": {
+    "requireHumanReview": true,
+    "criticalChecks": ["security", "breaking-changes"]
+  }
+}
+</code></pre>
+
+<h3>QA Report</h3>
+
+<p>Результат: `.auto-iflow/specs/&lt;task-id&gt;/qa_report.md`</p>
+
+<p>Пример структуры:</p>
+
+<pre><code>
+# QA Report — Task-123
+
+## ✅ Passed Checks
+- Code Quality: 85/100
+- Tests: 12 generated, 12 passed
+- Security: No issues found
+
+## ⚠️ Warnings
+- Function `calculateTotal()` has high complexity (12)
+- Missing tests for edge case: empty array
+
+## 🛠️ Recommendations
+1. Refactor `calculateTotal()` into smaller functions
+2. Add test case for empty input
+
+## 🚀 Approval Status
+**APPROVED** — Safe to merge
+</code></pre>
+
+<h3>Fix Menu (Stage 22)</h3>
+
+<p>Если QA находит проблемы, UI показывает <strong>Fix Menu</strong> с действиями:</p>
+
+<table>
+<thead><tr><th>Проблема</th><th>Fix Action</th></tr></thead>
+<tbody>
+<tr><td>Uncommitted changes</td><td>Auto-commit `.gitignore`</td></tr>
+<tr><td>Failed tests</td><td>Show test output, suggest fixes</td></tr>
+<tr><td>Security issue</td><td>Block merge, show details</td></tr>
+<tr><td>Rebase conflicts</td><td>Offer manual resolution in IDE</td></tr>
+</tbody>
+</table>
+<blockquote>[!IMPORTANT]</blockquote>
+<blockquote><strong>Stage 24:</strong> После QA approval план должен синхронизироваться в статус `human_review/review`, чтобы задача не зависала в `in_progress` (UI показывает "Stuck").</blockquote>
+
+<p>---</p>
+
+<h2>8. Security Model</h2>
+
+<h3>Принципы безопасности</h3>
+
+<p>Auto-iFlow выполняет <strong>произвольный AI-сгенерированный код</strong> на вашей машине. Для защиты:</p>
+
+<pre><code>
+graph TB
+    A[AI Generated Code] --&gt; B[Layer 1: OS Sandbox]
+    B --&gt; C[Layer 2: Filesystem Restrictions]
+    C --&gt; D[Layer 3: Dynamic Command Allowlist]
+    D --&gt; E[Safe Execution]
+</code></pre>
+
+<h3>Layer 1: OS Sandbox (bash isolation)</h3>
+
+<p>Весь код выполняется в <strong>ограниченной bash сессии</strong>:</p>
+<ul>
+<li>Нет доступа к домашней директории (`~`)</li>
+<li>Нет сетевых операций (кроме git)</li>
+<li>Ограниченные права (без sudo)</li>
+</ul>
+
+<p>Локация: `apps/frontend/src/main/pty-daemon.ts`</p>
+
+<h3>Layer 2: Filesystem Restrictions</h3>
+
+<p>AI может работать <strong>только внутри проектной директории</strong>:</p>
+
+<pre><code>
+# ✅ Разрешено
+/Users/username/Auto-iFlow/src/...
+/Users/username/Auto-iFlow/.auto-iflow/...
+
+# ❌ Запрещено
+/Users/username/Documents/...
+/etc/...
+/var/...
+</code></pre>
+
+<p>Проверка в `apps/frontend/src/main/ipc-handlers/task/worktree-handlers.ts`</p>
+
+<h3>Layer 3: Dynamic Command Allowlist</h3>
+
+<p>Только <strong>белый список команд</strong>:</p>
+
+<pre><code>
+const ALLOWED_COMMANDS = [
+  'git',
+  'npm',
+  'yarn',
+  'node',
+  'python',
+  'python3',
+  // code editors
+  'code',
+  'vim',
+  'nano'
+];
+</code></pre>
+
+<p><strong>Запрещено:</strong></p>
+<ul>
+<li>`rm -rf /` (удаление файлов вне проекта)</li>
+<li>`sudo` (повышение прав)</li>
+<table>
+<thead><tr><th>- `curl</th><th>sh` (выполнение удалённых скриптов)</th></tr></thead>
+</table>
+</ul>
+<h3>Safety Guarantees</h3>
+
+<blockquote>[!CAUTION]</blockquote>
+<blockquote><strong>Safety is not 100%</strong> — AI может найти способы обойти ограничения.</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>Best practices:</strong></blockquote>
+<blockquote>- ✅ Всегда проверяйте `qa_report.md` перед merge</blockquote>
+<blockquote>- ✅ Используйте Sandbox для критичных задач</blockquote>
+<blockquote>- ✅ Не запускайте Auto-iFlow от root/admin</blockquote>
+<blockquote>- ✅ Регулярно проверяйте логи: Settings → Logs</blockquote>
+
+<p>---</p>
+
+<h2>9. Структура файлов</h2>
+
+<h3>Проект Auto-iFlow</h3>
+
+<pre><code>
+/Users/kostenchuksergey/Auto-iFlow/
+├── apps/
+│   ├── frontend/              # Electron app (Main + Renderer)
+│   │   ├── src/main/          # Node.js backend
+│   │   ├── src/renderer/      # React UI
+│   │   └── src/preload/       # IPC bridge
+│   └── backend/               # Python services
+│       ├── qa/                # QA Pipeline
+│       └── consilium/         # Consilium AI Committee
+├── .auto-iflow/               # Metadata проекта
+│   ├── project_index.json     # Настройки проекта
+│   ├── specs/                 # Артефакты задач
+│   ├── roadmap/               # Roadmap.json
+│   └── worktrees/tasks/       # Sandbox worktrees
+└── package.json
+</code></pre>
+
+<h3>Артефакты задачи</h3>
+
+<pre><code>
+.auto-iflow/specs/&lt;task-id&gt;/
+├── spec.md                    # Спецификация
+├── requirements.json          # Требования (structured)
+├── implementation_plan.json   # План реализации
+├── task_metadata.json         # Метаданные (статус, модели)
+└── qa_report.md              # Отчёт QA
+</code></pre>
+
+<h3>Конфигурационные файлы</h3>
+
+<table>
+<thead><tr><th>Файл</th><th>Назначение</th></tr></thead>
+<tbody>
+<tr><td>`.auto-iflow/project_index.json`</td><td>Настройки проекта (Model Routing, Sandbox, Consilium)</td></tr>
+<tr><td>`~/.auto-iflow/graphs/`</td><td>База данных Graphiti (долгосрочная память AI)</td></tr>
+<tr><td>`~/.auto-iflow/profiles.json`</td><td>Профили агентов (Custom, Default, etc.)</td></tr>
+</tbody>
+</table>
+<p>---</p>
+
+<h2>10. Практические сценарии</h2>
+
+<h3>Сценарий 1: Quick Bug Fix</h3>
+
+<p><strong>Время:</strong> 15 минут</p>
+
+<p><strong>Шаги:</strong></p>
+
+<ul>
+<li><strong>Create Task</strong></li>
+<li>Kanban → New Task</li>
+<li>Описание: "Users report 500 error when submitting form with empty email"</li>
+<li>Attach screenshot (если есть)</li>
+<li>✅ Enable Sandbox</li>
+</ul>
+
+<ul>
+<li><strong>AI Spec → Plan → Code</strong></li>
+<li>AI анализирует → создаёт `spec.md`</li>
+<li>AI планирует → `implementation_plan.json`</li>
+<li>AI пишет код в Sandbox worktree</li>
+</ul>
+
+<ul>
+<li><strong>Auto QA</strong></li>
+<li>Генерация тестов для валидации email</li>
+<li>Security check (input validation)</li>
+<li>QA approval → `qa_report.md`</li>
+</ul>
+
+<ul>
+<li><strong>Human Review</strong></li>
+<li>Files → проверить `spec.md`, `implementation_plan.json`</li>
+<li>Merge Preview → проверить diff</li>
+<li>✅ Approve &amp; Merge</li>
+</ul>
+
+<ul>
+<li><strong>Done</strong></li>
+<li>Код в main</li>
+<li>Sandbox удалён</li>
+<li>Verify fix manually</li>
+</ul>
+
+<p><strong>Результат:</strong> ✅ Bug fixed in 15 min instead of 2 hours</p>
+
+<p>---</p>
+
+<h3>Сценарий 2: Feature Development</h3>
+
+<p><strong>Время:</strong> 30-40 минут</p>
+
+<p><strong>Шаги:</strong></p>
+
+<ul>
+<li><strong>Import from GitHub</strong></li>
+<li>Settings → Integrations → GitHub → Import Issue #42</li>
+<li>Auto-iFlow создаёт задачу с полным контекстом</li>
+</ul>
+
+<ul>
+<li><strong>Consilium Assessment</strong> (если complex)</li>
+<li>Checkbox "Require Consilium"</li>
+<li>3 AI агента обсуждают подходы</li>
+<li>Выбор лучшего → Go</li>
+</ul>
+
+<ul>
+<li><strong>Spec + Planning</strong></li>
+<li>AI создаёт детальную спецификацию</li>
+<li>Plan с изменениями в файлах</li>
+</ul>
+
+<ul>
+<li><strong>Sandbox Development</strong></li>
+<li>AI пишет код в изолированном worktree</li>
+<li>Auto QA → тесты, security, performance</li>
+</ul>
+
+<ul>
+<li><strong>Review → Merge</strong></li>
+<li>Human review артефактов</li>
+<li>Merge в main</li>
+<li>GitHub release notes (auto-generated)</li>
+</ul>
+
+<p><strong>Результат:</strong> ✅ Full cycle in 30-40 min</p>
+
+<p>---</p>
+
+<h3>Сценарий 3: Roadmap-Driven Development</h3>
+
+<p><strong>Время:</strong> 1 hour for full roadmap</p>
+
+<p><strong>Шаги:</strong></p>
+
+<ul>
+<li><strong>Generate Roadmap Discovery</strong></li>
+<li>Roadmap → Generate Discovery</li>
+<li>AI анализирует весь проект (код, issues, docs)</li>
+<li>Создаёт `roadmap_discovery.json`</li>
+</ul>
+
+<ul>
+<li><strong>Generate Features</strong></li>
+<li>AI предлагает фичи на основе Discovery</li>
+<li>Создаёт `roadmap.json` с приоритетами</li>
+</ul>
+
+<ul>
+<li><strong>Convert to Tasks</strong></li>
+<li>Select features → Convert to Tasks</li>
+<li>Задачи появляются в Kanban → Planning</li>
+</ul>
+
+<ul>
+<li><strong>Execute Tasks</strong></li>
+<li>Каждая задача проходит полный цикл (Spec → Code → QA → Review)</li>
+</ul>
+
+<p><strong>Результат:</strong> ✅ Strategic planning automated</p>
+
+<p>---</p>
+
+<h2>11. Разбор интерфейса</h2>
+
+<h3>Левая панель навигации</h3>
+
+<table>
+<thead><tr><th>Секция</th><th>Назначение</th></tr></thead>
+<tbody>
+<tr><td><strong>Control Board</strong></td><td>Главная Kanban-доска (Planning, In-Progress, Review, Done)</td></tr>
+<tr><td><strong>Agent Timelines</strong></td><td>История действий AI агентов по задачам</td></tr>
+<tr><td><strong>Consilium</strong></td><td>Запуск AI Investment Committee для текущей задачи</td></tr>
+<tr><td><strong>Insights</strong></td><td>Аналитика проекта (bottlenecks, productivity)</td></tr>
+<tr><td><strong>Roadmaps</strong></td><td>Генерация и управление roadmap.json</td></tr>
+<tr><td><strong>Random</strong></td><td>Случайная задача (для inspiration)</td></tr>
+<tr><td><strong>Changelog</strong></td><td>История изменений проекта</td></tr>
+<tr><td><strong>Connect</strong></td><td>Интеграции (GitHub, Linear, Jira)</td></tr>
+<tr><td><strong>MCP Overview</strong></td><td>Настройка MCP серверов (Context7, Browser)</td></tr>
+<tr><td><strong>Workflows</strong></td><td>Пользовательские workflow (custom automation)</td></tr>
+<tr><td><strong>Team</strong></td><td>Управление доступом (future feature)</td></tr>
+</tbody>
+</table>
+<h3>Колонки Kanban (из скриншота)</h3>
+
+<pre><code>
+┌─────────────┬──────────────┬───────────┬────────────┬────────┬──────┐
+│  Planning   │ In-Progress  │ In-Review │ Proj Review│ Failed │ Done │
+├─────────────┼──────────────┼───────────┼────────────┼────────┼──────┤
+│ No tasks    │ Waiting      │ Waiting   │ No failed  │   -    │  -   │
+│ planned     │ to design    │ to design │ tasks      │        │      │
+└─────────────┴──────────────┴───────────┴────────────┴────────┴──────┘
+</code></pre>
+
+<h3>Task Detail Panel (справа)</h3>
+
+<p>Когда выбираешь задачу:</p>
+
+<p><strong>Tabs:</strong></p>
+<ul>
+<li><strong>Overview</strong> — описание, статус, прогресс</li>
+<li><strong>Files</strong> — артефакты (spec, plan, qa_report)</li>
+<li><strong>Merge Preview</strong> — diff изменений (если Sandbox)</li>
+<li><strong>Logs</strong> — логи выполнения AI агента</li>
+<li><strong>Timeline</strong> — хронология действий</li>
+</ul>
+
+<p><strong>Actions:</strong></p>
+<ul>
+<li>▶️ Start / ⏸️ Pause / ⏹️ Stop</li>
+<li>🔁 Request Changes</li>
+<li>✅ Approve &amp; Merge</li>
+<li>❌ Reject</li>
+</ul>
+
+<p>---</p>
+
+<h2>🎓 Следующие шаги для изучения</h2>
+
+<p>Теперь, когда вы понимаете общую архитектуру, рекомендую <strong>детально изучить</strong>:</p>
+
+<h3>1. Изучить исходный код по блокам</h3>
+
+<ul>
+<li>[ ] <strong>Task lifecycle:</strong> `apps/frontend/src/main/task-manager.ts`</li>
+<li>[ ] <strong>Sandbox worktrees:</strong> `apps/frontend/src/main/ipc-handlers/task/worktree-handlers.ts`</li>
+<li>[ ] <strong>QA Pipeline:</strong> `apps/backend/qa/loop.py`, `criteria.py`</li>
+<li>[ ] <strong>Model Routing:</strong> `apps/frontend/src/main/ipc-handlers/settings/model-routing.ts`</li>
+<li>[ ] <strong>Consilium:</strong> `apps/backend/consilium/` (если реализован)</li>
+</ul>
+
+<h3>2. Запустить проект и экспериментировать</h3>
+
+<pre><code>
+cd /Users/kostenchuksergey/Auto-iFlow
+npm run dev   # Developer mode с hot reload
+</code></pre>
+
+<p><strong>Попробуйте:</strong></p>
+<ul>
+<li>Создать простую задачу (без Sandbox)</li>
+<li>Создать задачу с Sandbox и посмотреть worktree</li>
+<li>Посмотреть артефакты в `.auto-iflow/specs/`</li>
+<li>Изучить `qa_report.md` после QA</li>
+</ul>
+
+<h3>3. Изучить конфигурацию проекта</h3>
+
+<ul>
+<li>[ ] `.auto-iflow/project_index.json` — настройки проекта</li>
+<li>[ ] Roadmap → Generate Discovery — посмотреть, как AI анализирует проект</li>
+<li>[ ] Settings → Model Routing — настроить свои модели для каждой фазы</li>
+</ul>
+
+<h3>4. Пройти по текущим задачам (TASKS.md)</h3>
+
+<ul>
+<li>[ ] Stage 20: Sandbox adjustments (уже сделано в 20.1-20.4)</li>
+<li>[ ] Stage 21: Splash screen skip</li>
+<li>[ ] Stage 22: Sandbox merge cleanup + Fix actions</li>
+<li>[ ] Stage 23: Auto-commit after merge</li>
+<li>[ ] Stage 24: QA approval sync</li>
+</ul>
+
+<p>---</p>
+
+<h2>📚 Дополнительные ресурсы</h2>
+
+<ul>
+<li><a href="file:///Users/kostenchuksergey/Library/CloudStorage/OneDrive-Личная/AUTO-IFLOW/NEW-PLANS/CONTEXT.md">CONTEXT.md</a> — история проекта, известные проблемы</li>
+<li><a href="file:///Users/kostenchuksergey/Library/CloudStorage/OneDrive-Личная/AUTO-IFLOW/NEW-PLANS/TASKS.md">TASKS.md</a> — текущие задачи (Stages 16-24)</li>
+<li><a href="file:///Users/kostenchuksergey/Library/CloudStorage/OneDrive-Личная/AUTO-IFLOW/NEW-PLANS/NEW-CONCIL.md">NEW-CONCIL.md</a> — детальное описание Consilium</li>
+<li><a href="file:///Users/kostenchuksergey/Library/CloudStorage/OneDrive-Личная/AUTO-IFLOW/NEW-PLANS/BUILD-CREDENTIALS.md">BUILD-CREDENTIALS.md</a> — сборка и credentials</li>
+</ul>
+
+<p>---</p>
+
+<h2>❓ Вопросы для самопроверки</h2>
+
+<p>Попробуйте ответить на эти вопросы, чтобы проверить понимание:</p>
+
+<ul>
+<li><strong>Архитектура:</strong> Какие два основных процесса в Auto-iFlow и за что они отвечают?</li>
+<li><strong>Kanban:</strong> Какие фазы проходит задача от создания до Done?</li>
+<li><strong>Sandbox:</strong> Зачем нужен Git worktree и когда его использовать?</li>
+<li><strong>Consilium:</strong> Из каких ролей состоит AI Investment Committee?</li>
+<li><strong>Model Routing:</strong> В чём разница между App-level, Project-level, Task-level конфигурацией?</li>
+<li><strong>QA Pipeline:</strong> Какие автоматические проверки выполняются перед Review?</li>
+<li><strong>Security:</strong> Какие 3 слоя защиты есть в Auto-iFlow?</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Готовы к практике?</strong> Предлагаю создать тестовую задачу и пройти весь цикл вместе! 🚀</p>
+    </div>
+  </div>
+</body>
+</html>

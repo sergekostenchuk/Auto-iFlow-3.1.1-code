@@ -1,0 +1,53 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+# Environment variables
+.env
+.env.*
+# IDEs
+.idea/
+.vscode/
+.DS_Store
+# Project specific
+spikes/stress_test_workspaces/
+spikes/test_workspace/
+spikes/reports/
+TESTS-AUTO-IFLOW/auto-iflow-test/
+.auto-iflow/
+.auto-claude/
+.auto-iflow-status
+.gemini/
+node_modules
+.claude_settings.json
+# Temp workspaces
+auto-iflow/
+!docs/auto-iflow/
+!docs/auto-iflow/**
+consilium_workspace/
+spikes/consilium_workspace/
+spikes/test_wrapper_workspace/
+# Logs
+*.log
+consilium.log
+# Local scratch assets (do not commit)
+auto
+auto iFlow.jpg
+auto.png
+iFlow.png
+apps/frontend/src/renderer/assets/auto-iflow-logo.svg
+# Auto-iFlow generated files
+.auto-claude-security.json
+.auto-claude-status
+.worktrees/
+.security-key
+logs/security/
+# local scratch
+auto-iflow@*
+cd
+electron-vite
+auto-iflow-ui@*

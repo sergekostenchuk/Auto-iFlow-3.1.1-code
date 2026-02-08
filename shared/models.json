@@ -1,0 +1,59 @@
+{
+  "models": [
+    {
+      "id": "glm-4.7",
+      "displayName": "GLM-4.7",
+      "tier": "balanced",
+      "supportsThinking": true,
+      "recommendedFor": ["spec", "planning", "coding", "validation"]
+    },
+    {
+      "id": "iflow-rome-30ba3b",
+      "displayName": "iFlow-ROME-30BA3B (Preview)",
+      "tier": "experimental",
+      "supportsThinking": true,
+      "recommendedFor": []
+    },
+    {
+      "id": "deepseek-v3.2",
+      "displayName": "DeepSeek-V3.2",
+      "tier": "balanced",
+      "supportsThinking": true,
+      "recommendedFor": []
+    },
+    {
+      "id": "qwen3-coder-plus",
+      "displayName": "Qwen3-Coder-Plus",
+      "tier": "economy",
+      "supportsThinking": true,
+      "recommendedFor": ["complexity", "triage"]
+    },
+    {
+      "id": "kimi-k2-thinking",
+      "displayName": "Kimi-K2-Thinking",
+      "tier": "premium",
+      "supportsThinking": true,
+      "recommendedFor": ["planning"]
+    },
+    {
+      "id": "minimax-m2.1",
+      "displayName": "MiniMax-M2.1",
+      "tier": "economy",
+      "supportsThinking": true,
+      "recommendedFor": []
+    },
+    {
+      "id": "kimi-k2-0905",
+      "displayName": "Kimi-K2-0905",
+      "tier": "premium",
+      "supportsThinking": true,
+      "recommendedFor": []
+    }
+  ],
+  "legacyAliases": {
+    "sonnet": "glm-4.7",
+    "haiku": "qwen3-coder-plus",
+    "opus": "kimi-k2-thinking"
+  },
+  "bootstrapModel": "qwen3-coder-plus"
+}

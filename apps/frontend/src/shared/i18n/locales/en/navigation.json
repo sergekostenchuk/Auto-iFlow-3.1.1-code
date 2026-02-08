@@ -1,0 +1,80 @@
+{
+  "sections": {
+    "project": "Project",
+    "sandboxes": "Sandboxes",
+    "tools": "Tools"
+  },
+  "items": {
+    "kanban": "Kanban Board",
+    "terminals": "Agent Terminals",
+    "insights": "Insights",
+    "roadmap": "Roadmap",
+    "ideation": "Ideation",
+    "importTaskPlan": "Import Task Plan",
+    "changelog": "Changelog",
+    "context": "Context",
+    "githubIssues": "GitHub Issues",
+    "githubPRs": "GitHub PRs",
+    "gitlabIssues": "GitLab Issues",
+    "gitlabMRs": "GitLab MRs",
+    "worktrees": "Worktrees",
+    "agentTools": "MCP Overview",
+    "consilium": "Consilium",
+    "tetris": "Tetris"
+  },
+  "actions": {
+    "settings": "Settings",
+    "help": "Help & Feedback",
+    "newTask": "New Task"
+  },
+  "labels": {
+    "sandbox": "Sandbox"
+  },
+  "tooltips": {
+    "settings": "Application Settings",
+    "help": "Help & Feedback"
+  },
+  "messages": {
+    "initializeToCreateTasks": "Initialize Auto-iFlow to create tasks"
+  },
+  "claudeCode": {
+    "checking": "Checking iFlow CLI...",
+    "upToDate": "iFlow CLI is up to date",
+    "updateAvailable": "iFlow CLI update available",
+    "notInstalled": "iFlow CLI not installed",
+    "error": "Error checking iFlow CLI",
+    "installed": "Installed",
+    "outdated": "Update available",
+    "missing": "Not installed",
+    "current": "Current",
+    "latest": "Latest",
+    "lastChecked": "Last checked",
+    "learnMore": "Learn more about iFlow CLI",
+    "learnMoreAriaLabel": "Learn more about iFlow CLI (opens in new window)",
+    "updateWarningTitle": "Update iFlow CLI?",
+    "updateWarningDescription": "Updating will close all running iFlow CLI sessions. Any unsaved work in those sessions may be lost. Make sure to save your work before proceeding.",
+    "updateAnyway": "Update Anyway"
+  },
+  "iflow": {
+    "checking": "Checking iFlow...",
+    "ready": "iFlow is ready",
+    "cliMissing": "iFlow CLI not installed",
+    "keyMissing": "iFlow API key not configured",
+    "error": "Error checking iFlow",
+    "version": "Version",
+    "apiKey": "API key",
+    "authType": "Auth",
+    "authTypeApiKey": "API key",
+    "authTypeWeb": "Web login",
+    "authTypeOpenAI": "OpenAI-compatible",
+    "authTypeUnknown": "Unknown",
+    "configured": "Configured",
+    "notConfigured": "Not configured",
+    "webLogin": "Web login",
+    "permissionMode": "Permission",
+    "model": "Model",
+    "lastChecked": "Last checked",
+    "configure": "Configure",
+    "configureHint": "Add your iFlow API key or use Web login in Settings → Integrations."
+  }
+}

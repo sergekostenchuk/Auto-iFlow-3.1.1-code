@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto-iFlow — Matrix Presentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black: #000000;
+      --near-black: #0A0A0A;
+      --dark-gray: #1A1A1A;
+      --medium-gray: #2A2A2A;
+      --matrix: #00FF6A;
+      --matrix-soft: #00E65F;
+      --matrix-glow: #66FFB2;
+      --text: #FFFFFF;
+      --text-secondary: #999999;
+      --text-muted: #666666;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .page { width: 1440px; margin: 0 auto; background: var(--black); }
+    .container { width: 1280px; margin: 0 auto; }
+    .section { padding: 96px 0; border-bottom: 1px solid var(--dark-gray); background: var(--near-black); }
+    .section--black { background: var(--black); }
+    .section--dark { background: var(--near-black); }
+    .badge { display: inline-block; font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: 1px; padding: 6px 12px; background: var(--dark-gray); color: var(--matrix); border: 1px solid var(--medium-gray); }
+    h1 { font-size: 56px; font-weight: 700; letter-spacing: -1px; margin: 16px 0; }
+    h2 { font-size: 40px; font-weight: 700; margin: 12px 0; }
+    h3 { font-size: 22px; font-weight: 600; }
+    p { font-size: 16px; line-height: 1.6; color: var(--text-secondary); }
+    .muted { color: var(--text-muted); }
+
+    /* Header */
+    header { background: var(--near-black); border-bottom: 1px solid var(--dark-gray); position: sticky; top: 0; z-index: 1000; }
+    .header-wrap { height: 80px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; gap: 6px; align-items: center; font-weight: 700; font-size: 22px; }
+    .logo .auto { color: var(--text); }
+    .logo .iflow { color: var(--matrix); }
+    nav { display: flex; gap: 36px; font-size: 13px; letter-spacing: 1px; color: var(--text-secondary); }
+    nav a { color: var(--text-secondary); text-decoration: none; }
+    nav a:hover { color: var(--matrix); }
+    .hamburger { display: none; background: transparent; border: 1px solid var(--dark-gray); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: 16px; }
+    .nav-open nav { display: flex !important; }
+    .btn { padding: 10px 22px; border-radius: 4px; border: 1px solid var(--matrix); color: var(--black); background: var(--matrix); font-weight: 600; font-size: 14px; }
+
+    /* Hero */
+    .hero { padding: 120px 0; background: var(--black); }
+    .hero-content { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+    .hero-logo { font-size: 40px; font-weight: 700; }
+    .hero-logo .iflow { color: var(--matrix); }
+    .hero-ctas { display: flex; gap: 16px; margin-top: 24px; }
+    .btn-secondary { padding: 10px 22px; border-radius: 4px; border: 1px solid var(--medium-gray); color: var(--text); background: transparent; font-weight: 600; font-size: 14px; }
+    .hero-media { background: #050505; border: 1px solid var(--dark-gray); border-radius: 8px; height: 360px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .hero-media img, .hero-media video { width: 100%; height: 100%; object-fit: contain; }
+
+    /* Grids */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 32px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 32px; }
+    .grid-5 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 32px; }
+    .card { padding: 24px; border: 1px solid var(--dark-gray); background: var(--black); border-radius: 8px; display: grid; gap: 10px; }
+    .card .index { font-family: 'Space Mono', monospace; color: var(--matrix); font-size: 12px; }
+
+    /* Flow steps */
+    .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 32px; }
+    .step { padding: 18px; border: 1px solid var(--dark-gray); border-radius: 8px; background: #050505; display: grid; gap: 8px; }
+    .step .num { color: var(--matrix); font-family: 'Space Mono', monospace; font-size: 12px; }
+
+    /* Journeys */
+    .journey { border: 1px solid var(--dark-gray); border-radius: 8px; padding: 24px; background: #050505; display: grid; gap: 12px; }
+    .journey ul { margin-left: 16px; color: var(--text-secondary); }
+
+    /* Best practices */
+    .best { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
+    .best .box { padding: 24px; border-radius: 8px; border: 1px solid var(--dark-gray); }
+    .best .do { background: rgba(0,255,106,0.08); }
+    .best .dont { background: rgba(255,0,70,0.08); }
+    .best ul { margin-left: 18px; color: var(--text-secondary); }
+
+    /* Artifact */
+    pre { background: #050505; border: 1px solid var(--dark-gray); padding: 24px; border-radius: 8px; color: var(--matrix-glow); font-family: 'Space Mono', monospace; font-size: 13px; line-height: 1.5; }
+
+    /* Final CTA */
+    .cta { text-align: center; padding: 96px 0; background: var(--black); }
+    .cta .hero-logo { font-size: 36px; }
+
+    /* Footer */
+    footer { background: var(--near-black); padding: 60px 0; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 24px; }
+    .footer-title { color: var(--matrix); font-size: 14px; letter-spacing: 1px; margin-bottom: 12px; }
+    .footer-links div { color: var(--text-secondary); margin-bottom: 8px; }
+
+    /* Responsive */
+    @media (max-width: 1440px) {
+      .page { width: 100%; }
+      .container { width: min(1280px, 92vw); }
+    }
+    @media (max-width: 1024px) {
+      h1 { font-size: 44px; }
+      h2 { font-size: 32px; }
+      .hero-content { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .section { padding: 72px 0; }
+    }
+    @media (max-width: 768px) {
+      .header-wrap { flex-direction: row; height: auto; padding: 16px 0; gap: 12px; justify-content: space-between; }
+      nav { display: none; flex-direction: column; width: 100%; gap: 12px; padding-top: 12px; }
+      .hamburger { display: inline-flex; align-items: center; justify-content: center; }
+      .header-wrap { flex-wrap: wrap; }
+      .header-actions { display: flex; gap: 10px; align-items: center; }
+      .hero { padding: 72px 0; }
+      .hero-ctas { flex-direction: column; align-items: flex-start; }
+      .grid-3, .grid-2, .grid-5, .steps, .best, .footer-grid { grid-template-columns: 1fr; }
+      .section { padding: 64px 0; }
+    }
+    @media (max-width: 480px) {
+      h1 { font-size: 34px; }
+      h2 { font-size: 26px; }
+      .container { width: 92vw; }
+      .hero-media { height: 240px; }
+      .btn, .btn-secondary { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="container header-wrap" id="siteHeader">
+        <div class="logo"><span class="auto">Auto</span><span class="iflow">iFlow</span></div>
+        <nav>
+          <a href="#features">FEATURES</a>
+          <a href="#workflow">WORKFLOW</a>
+          <a href="#technologies">TECHNOLOGIES</a>
+          <a href="#journeys">JOURNEYS</a>
+        </nav>
+        <div class="header-actions">
+          <button class="hamburger" id="hamburger" aria-label="Open menu">☰</button>
+          <button class="btn">DOWNLOAD</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container hero-content">
+        <div>
+          <div class="hero-logo"><span class="auto">Auto</span> <span class="iflow">iFlow</span></div>
+          <h1>Autonomous Multi-Agent AI Coding</h1>
+          <p>Transform your development workflow with intelligent parallel processing. Auto-iFlow orchestrates multiple AI agents to analyze, generate, and refine code simultaneously.</p>
+          <div class="hero-ctas">
+            <button class="btn">Download for macOS</button>
+            <button class="btn-secondary">View on GitHub</button>
+          </div>
+        </div>
+        <div class="hero-media">
+          <video src="Auto_iFlow_level2_flowmask.mp4" autoplay loop muted playsinline></video>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--dark" id="overview">
+      <div class="container">
+        <span class="badge">AUTONOMOUS AI CODING</span>
+        <h2>Auto-iFlow Overview</h2>
+        <p>A native macOS application that revolutionizes AI-assisted development through intelligent multi-agent orchestration and parallel processing capabilities.</p>
+        <div class="grid-3">
+          <div class="card"><h3>Multi-Agent Architecture</h3><p>Orchestrate multiple AI agents working in parallel to analyze, generate, and refine code simultaneously.</p></div>
+          <div class="card"><h3>Intelligent Automation</h3><p>Automated task decomposition, context management, and iterative refinement without manual intervention.</p></div>
+          <div class="card"><h3>Native macOS Experience</h3><p>Built with SwiftUI for seamless integration with your macOS environment and optimal performance.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--black" id="architecture">
+      <div class="container">
+        <span class="badge">SYSTEM ARCHITECTURE</span>
+        <h2>Architecture Overview</h2>
+        <p>Auto-iFlow follows Electron-style architecture with clear separation between Main Process, Renderer, and External Services.</p>
+        <div class="grid-3">
+          <div class="card">
+            <h3>Main Process</h3>
+            <p>Core orchestration layer handling all business logic and AI coordination</p>
+            <p class="muted">SessionManager · AgentOrchestrator · ContextManager · FileSystemBridge · APIProvider</p>
+          </div>
+          <div class="card">
+            <h3>Renderer (UI)</h3>
+            <p>SwiftUI-based interface for visualization and user interaction</p>
+            <p class="muted">SessionListView · ChatView · ArtifactPanel · AgentStatusView</p>
+          </div>
+          <div class="card">
+            <h3>External Services</h3>
+            <p>Third-party integrations and AI model providers</p>
+            <p class="muted">Anthropic Claude API · OpenRouter API · Local File System · Git Integration</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--dark" id="technologies">
+      <div class="container">
+        <span class="badge">TECHNOLOGY STACK</span>
+        <h2>Key Technologies Deep Dive</h2>
+        <p>Powered by cutting-edge technologies to deliver exceptional performance and reliability.</p>
+        <div class="grid-5">
+          <div class="card"><div class="index">01</div><h3>SwiftUI Framework</h3><p>Modern declarative UI framework ensuring native macOS experience with smooth animations and responsive design.</p></div>
+          <div class="card"><div class="index">02</div><h3>Combine Framework</h3><p>Reactive programming for seamless data flow between components with automatic state synchronization.</p></div>
+          <div class="card"><div class="index">03</div><h3>Anthropic Claude API</h3><p>Advanced language model integration for intelligent code generation, analysis, and natural language understanding.</p></div>
+          <div class="card"><div class="index">04</div><h3>Multi-Agent System</h3><p>Parallel AI agent orchestration enabling concurrent task processing and intelligent workload distribution.</p></div>
+          <div class="card"><div class="index">05</div><h3>Swift Async/Await</h3><p>Modern concurrency model for efficient parallel execution and non-blocking operations across all system components.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--black" id="workflow">
+      <div class="container">
+        <span class="badge">WORKFLOW</span>
+        <h2>End-to-End Process</h2>
+        <p>From your initial prompt to production-ready code in a seamless automated flow.</p>
+        <div class="steps">
+          <div class="step"><div class="num">1</div><h3>User Input</h3><p>You describe your coding task in natural language. Auto-iFlow analyzes your request and prepares the execution plan.</p></div>
+          <div class="step"><div class="num">2</div><h3>Task Analysis</h3><p>The orchestrator decomposes your task into subtasks and distributes them across multiple AI agents for parallel processing.</p></div>
+          <div class="step"><div class="num">3</div><h3>Parallel Execution</h3><p>Multiple agents work simultaneously on different aspects: code generation, testing, documentation, and optimization.</p></div>
+          <div class="step"><div class="num">4</div><h3>Iterative Refinement</h3><p>Results are validated, errors are corrected, and code is refined through multiple iterations until quality standards are met.</p></div>
+          <div class="step"><div class="num">5</div><h3>Delivery</h3><p>Final artifacts are delivered: source code, tests, documentation, and commit-ready changes to your project.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--dark" id="features">
+      <div class="container">
+        <span class="badge">FEATURES</span>
+        <h2>Core Features</h2>
+        <p>Powerful capabilities designed for professional developers.</p>
+        <div class="grid-3">
+          <div class="card"><h3>Intelligent Orchestration</h3><p>Smart task distribution and agent coordination for optimal parallel processing efficiency.</p></div>
+          <div class="card"><h3>Context Management</h3><p>Intelligent context handling ensures agents maintain awareness of your entire codebase structure.</p></div>
+          <div class="card"><h3>Auto-Recovery</h3><p>Automatic error detection and self-healing capabilities to maintain continuous operation.</p></div>
+          <div class="card"><h3>Artifact System</h3><p>Organized output management with structured artifacts for code, docs, and configurations.</p></div>
+          <div class="card"><h3>Real-time Streaming</h3><p>Live progress updates and streaming output for immediate visibility into agent activities.</p></div>
+          <div class="card"><h3>Secure by Design</h3><p>Local-first architecture with encrypted API key storage and sandboxed file operations.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--black" id="journeys">
+      <div class="container">
+        <span class="badge">USE CASES</span>
+        <h2>User Journeys</h2>
+        <p>Real-world scenarios showing how Auto-iFlow transforms your development workflow.</p>
+        <div class="grid-3">
+          <div class="journey">
+            <div class="muted">SCENARIO 1</div>
+            <h3>New Feature Development</h3>
+            <p>Build a complete REST API endpoint with authentication, validation, database operations, and comprehensive tests — all from a single prompt.</p>
+            <ul>
+              <li>Describe feature</li><li>Auto-generate code</li><li>Tests pass</li><li>Ready to commit</li>
+            </ul>
+          </div>
+          <div class="journey">
+            <div class="muted">SCENARIO 2</div>
+            <h3>Bug Investigation & Fix</h3>
+            <p>Describe the bug symptoms, and Auto-iFlow analyzes logs, traces code paths, identifies root causes, and implements verified fixes.</p>
+            <ul>
+              <li>Report bug</li><li>Auto-analyze</li><li>Apply fix</li>
+            </ul>
+          </div>
+          <div class="journey">
+            <div class="muted">SCENARIO 3</div>
+            <h3>Codebase Refactoring</h3>
+            <p>Migrate legacy code to modern patterns, update dependencies, refactor architecture — while maintaining full test coverage and backwards compatibility.</p>
+            <ul>
+              <li>Define scope</li><li>Auto-refactor</li><li>Verify & deploy</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--dark">
+      <div class="container">
+        <span class="badge">GUIDELINES</span>
+        <h2>Best Practices</h2>
+        <p>Follow these guidelines to get the most out of Auto-iFlow.</p>
+        <div class="best">
+          <div class="box do">
+            <h3>DO</h3>
+            <ul>
+              <li>Provide clear, specific task descriptions</li>
+              <li>Include context about your codebase structure</li>
+              <li>Review generated artifacts before committing</li>
+              <li>Use iterative refinement for complex tasks</li>
+              <li>Specify testing requirements upfront</li>
+            </ul>
+          </div>
+          <div class="box dont">
+            <h3>DON'T</h3>
+            <ul>
+              <li>Use vague or ambiguous prompts</li>
+              <li>Blindly accept generated code without review</li>
+              <li>Expect perfect results on first iteration</li>
+              <li>Skip the testing verification step</li>
+              <li>Ignore security best practices</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--black">
+      <div class="container">
+        <span class="badge">OUTPUT FORMAT</span>
+        <h2>Artifact Structure</h2>
+        <p>Auto-iFlow generates organized output in a standardized structure.</p>
+        <pre>auto-iflow-output/
+├── src/
+│   ├── components/
+│   ├── services/
+│   └── utils/
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── docs/
+│   ├── API.md
+│   └── CHANGELOG.md
+├── config/
+└── artifacts.json</pre>
+      </div>
+    </section>
+
+    <section class="section section--dark">
+      <div class="container">
+        <span class="badge">QUICK START</span>
+        <h2>Getting Started</h2>
+        <p>Get up and running with Auto-iFlow in three simple steps.</p>
+        <div class="grid-3">
+          <div class="card"><div class="index">1</div><h3>Download</h3><p>Download Auto-iFlow from our website or GitHub releases page.</p></div>
+          <div class="card"><div class="index">2</div><h3>Configure</h3><p>Add your Anthropic API key and configure your preferred settings.</p></div>
+          <div class="card"><div class="index">3</div><h3>Start Coding</h3><p>Select a project folder, describe your task, and let Auto-iFlow do the rest.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="container">
+        <div class="hero-logo"><span class="auto">Auto</span> <span class="iflow">iFlow</span></div>
+        <h2>Ready to Transform Your Development?</h2>
+        <p>Join developers who are already shipping code faster with AI-powered multi-agent orchestration.</p>
+        <div style="margin-top:24px; display:flex; justify-content:center; gap:16px;">
+          <button class="btn">Download Now</button>
+          <button class="btn-secondary">Read Documentation</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container footer-grid">
+        <div>
+          <div class="logo"><span class="auto">Auto</span><span class="iflow">iFlow</span></div>
+          <p class="muted" style="margin-top:10px;">Autonomous multi-agent AI coding for macOS. Transform your development workflow.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-title">Product</div>
+          <div>Features</div><div>Download</div><div>Changelog</div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-title">Resources</div>
+          <div>Documentation</div><div>API Reference</div><div>GitHub</div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-title">Legal</div>
+          <div>Privacy Policy</div><div>Terms of Service</div><div>License</div>
+        </div>
+      </div>
+      <div class="container" style="margin-top:32px; color: var(--text-muted); font-size: 12px;">© 2025 Auto-iFlow. All rights reserved.</div>
+    </footer>
+  </div>
+  <script>
+    (function () {
+      const header = document.getElementById('siteHeader');
+      const btn = document.getElementById('hamburger');
+      if (!btn || !header) return;
+      btn.addEventListener('click', () => {
+        header.classList.toggle('nav-open');
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <rect width="1200" height="675" fill="#0f1117"/>
+  <rect x="60" y="60" width="1080" height="555" rx="24" fill="#151924" stroke="#2a3142" stroke-width="2"/>
+  <text x="120" y="170" fill="#e6e7ee" font-size="36" font-family="Arial, sans-serif" font-weight="600">Post-Code Tests</text>
+  <text x="120" y="230" fill="#9aa4b2" font-size="22" font-family="Arial, sans-serif">Automated Test Plan Results</text>
+  <text x="120" y="300" fill="#6b7280" font-size="18" font-family="Arial, sans-serif">Replace this placeholder with a real UI screenshot.</text>
+</svg>

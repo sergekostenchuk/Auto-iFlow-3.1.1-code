@@ -1,0 +1,180 @@
+{
+  "status": {
+    "backlog": "Backlog",
+    "todo": "To Do",
+    "in_progress": "In Progress",
+    "paused": "Paused",
+    "failed": "Failed",
+    "review": "Review",
+    "complete": "Complete",
+    "archived": "Archived"
+  },
+  "actions": {
+    "start": "Start",
+    "stop": "Stop",
+    "recover": "Recover",
+    "resume": "Resume",
+    "archive": "Archive",
+    "delete": "Delete",
+    "view": "View Details",
+    "moveTo": "Move to",
+    "taskActions": "Task actions"
+  },
+  "labels": {
+    "running": "Running",
+    "aiReview": "AI Review",
+    "needsReview": "Needs Review",
+    "failed": "Failed",
+    "pending": "Pending",
+    "paused": "Paused",
+    "stuck": "Stuck",
+    "incomplete": "Incomplete",
+    "recovering": "Recovering...",
+    "needsRecovery": "Needs Recovery",
+    "needsResume": "Needs Resume"
+  },
+  "reviewReason": {
+    "completed": "Completed",
+    "hasErrors": "Has Errors",
+    "qaIssues": "QA Issues",
+    "approvePlan": "Approve Plan"
+  },
+  "tooltips": {
+    "archiveTask": "Archive task",
+    "archiveAllDone": "Archive all done tasks"
+  },
+  "creation": {
+    "title": "Create New Task",
+    "description": "Describe what you want to build",
+    "placeholder": "Describe your task..."
+  },
+  "empty": {
+    "title": "No tasks yet",
+    "description": "Create your first task to get started"
+  },
+  "columns": {
+    "backlog": "Planning",
+    "in_progress": "In Progress",
+    "paused": "Paused",
+    "ai_review": "AI Review",
+    "human_review": "Human Review",
+    "failed": "Failed",
+    "done": "Done"
+  },
+  "kanban": {
+    "emptyBacklog": "No tasks planned",
+    "emptyBacklogHint": "Add a task to get started",
+    "emptyInProgress": "Nothing running",
+    "emptyInProgressHint": "Start a task from Backlog",
+    "emptyPaused": "Paused tasks",
+    "emptyPausedHint": "Paused tasks will appear here",
+    "emptyAiReview": "No tasks in review",
+    "emptyAiReviewHint": "AI will review completed tasks",
+    "emptyHumanReview": "Nothing to review",
+    "emptyHumanReviewHint": "Tasks await your approval here",
+    "emptyFailed": "No failed tasks",
+    "emptyFailedHint": "Failed tasks will appear here",
+    "emptyDone": "No completed tasks",
+    "emptyDoneHint": "Approved tasks appear here",
+    "emptyDefault": "No tasks",
+    "dropHere": "Drop here",
+    "showArchived": "Show archived",
+    "addTaskAriaLabel": "Add new task to backlog",
+    "closeTaskDetailsAriaLabel": "Close task details",
+    "editTask": "Edit task",
+    "cannotEditWhileRunning": "Cannot edit while task is running"
+  },
+  "execution": {
+    "phases": {
+      "idle": "Idle",
+      "planning": "Planning",
+      "coding": "Coding",
+      "reviewing": "Reviewing",
+      "fixing": "Fixing",
+      "complete": "Complete",
+      "failed": "Failed"
+    },
+    "labels": {
+      "interrupted": "Interrupted",
+      "progress": "Progress",
+      "entry": "entry",
+      "entries": "entries"
+    },
+    "shortPhases": {
+      "plan": "Plan",
+      "code": "Code",
+      "qa": "QA"
+    }
+  },
+  "files": {
+    "title": "Files",
+    "tab": "Files",
+    "noSpecPath": "No spec files available",
+    "noFiles": "No files found",
+    "loading": "Loading files...",
+    "loadingContent": "Loading content...",
+    "errorLoading": "Failed to load files",
+    "errorLoadingContent": "Failed to load file content",
+    "retry": "Retry",
+    "selectFile": "Select a file to view its contents",
+    "openInIDE": "Open in IDE",
+    "openFolder": "Open folder",
+    "resultFolder": "Result folder",
+    "specFolder": "Spec folder",
+    "workspaceFolder": "Workspace folder"
+  },
+  "metadata": {
+    "severity": "severity"
+  },
+  "images": {
+    "removeImageAriaLabel": "Remove image {{filename}}",
+    "pasteHint": "Tip: Paste screenshots directly with {{shortcut}} to add reference images."
+  },
+  "notifications": {
+    "backgroundTaskTitle": "Task continues in background",
+    "backgroundTaskDescription": "The task is still running. You can reopen this dialog to monitor progress."
+  },
+  "wizard": {
+    "gitOptions": {
+      "useWorktreeLabel": "Use isolated workspace (recommended)",
+      "useWorktreeDescription": "Creates changes in a separate git worktree for safe review before merging. Disable to build directly in your project (faster but riskier)."
+    },
+    "intake": {
+      "title": "Intake analysis",
+      "run": "Run Intake",
+      "rerun": "Re-run Intake",
+      "openClarify": "Answer questions",
+      "statusLabel": "Status",
+      "status": {
+        "idle": "Not started",
+        "analyzing": "Analyzing",
+        "completed": "Completed",
+        "needsClarify": "Needs clarification",
+        "blocked": "Blocked"
+      },
+      "needsClarifyHint": "Intake needs clarification before you can create this task.",
+      "blockedHint": "Intake is blocked. Please уточните задачу before continuing.",
+      "createUnlockHint": "Complete intake clarification (or enable skip intake) to unlock Create Task.",
+      "modelLabel": "Intake model",
+      "modelPlaceholder": "Select intake model",
+      "modelHint": "Used for the intake analysis before task creation.",
+      "skipLabel": "Skip intake (expert mode)",
+      "skipHint": "Creates the task without intake analysis. Use only if the requirements are already clear.",
+      "collectContext": "Collect context",
+      "clarifyTitle": "Clarify task details",
+      "clarifySubtitle": "Answer these questions to proceed",
+      "iterationLabel": "Round {{current}} of {{max}}",
+      "answerPlaceholder": "Type your answer",
+      "fallbackSelectLabel": "What should be уточнено? (select all that apply)",
+      "fallbackTextLabel": "Add any missing details here",
+      "fallbackOptionLocation": "Exact file/location",
+      "fallbackOptionChange": "What to change/add",
+      "fallbackOptionResult": "Expected result",
+      "fallbackOptionConstraints": "Constraints / do not change",
+      "fallbackOptionTesting": "How to verify (tests/manual)",
+      "selectPlaceholder": "Select an option",
+      "cancelClarify": "Cancel",
+      "submitClarify": "Submit clarification"
+    }
+  }
+}

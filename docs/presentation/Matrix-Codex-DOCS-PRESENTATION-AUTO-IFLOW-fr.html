@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auto‑iFlow — Deep Dive (Matrix)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --black: #000000;
+            --near-black: #0A0A0A;
+            --dark-gray: #1A1A1A;
+            --medium-gray: #2A2A2A;
+            --matrix: #00FF6A;
+            --matrix-soft: #00E65F;
+            --matrix-glow: #66FFB2;
+            --text: #FFFFFF;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--black);
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .page {
+            width: 100%;
+        }
+
+        .container {
+            width: min(1100px, 92vw);
+            margin: 0 auto;
+            padding: 72px 0;
+        }
+
+        h1 {
+            font-size: 42px;
+            color: var(--matrix);
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            font-size: 28px;
+            color: var(--matrix);
+            margin: 28px 0 10px;
+        }
+
+        h3 {
+            font-size: 20px;
+            margin: 18px 0 8px;
+        }
+
+        h4 {
+            font-size: 17px;
+            margin: 16px 0 6px;
+            color: var(--matrix-soft);
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin: 8px 0;
+        }
+
+        a {
+            color: var(--matrix);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--matrix-glow);
+        }
+
+        strong {
+            color: var(--text);
+        }
+
+        em {
+            color: var(--text-muted);
+        }
+
+        ul {
+            margin: 10px 0 16px 20px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin: 6px 0;
+        }
+
+        blockquote {
+            border-left: 2px solid var(--matrix);
+            padding: 8px 14px;
+            margin: 16px 0;
+            background: #050505;
+            color: var(--text-secondary);
+        }
+
+        pre {
+            background: #050505;
+            border: 1px solid var(--dark-gray);
+            padding: 16px;
+            border-radius: 8px;
+            overflow: auto;
+            margin: 12px 0;
+        }
+
+        code {
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            color: var(--matrix-glow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0 18px;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--dark-gray);
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            color: var(--matrix);
+            background: #050505;
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--dark-gray);
+            margin: 24px 0;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 34px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .container {
+                padding: 48px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="container">
+            <h1>Auto-iFlow — Analyse Complète du Système</h1>
+
+            <blockquote><strong>Objectif:</strong> Faire de vous un expert Auto-iFlow grâce à l'exploration détaillée de
+                chaque composant système</blockquote>
+
+            <p>---</p>
+
+            <h2>📋 Table des Matières</h2>
+
+            <ul>
+                <li><a href="#1-apercu-general">Qu'est-ce qu'Auto-iFlow — Aperçu général</a></li>
+                <li><a href="#2-architecture-systeme">Architecture du système</a></li>
+                <li><a href="#3-kanban-workflow">Kanban Workflow — Cycle de vie des tâches</a></li>
+                <li><a href="#4-sandbox-mode">Sandbox Mode — Isolation des tâches</a></li>
+                <li><a href="#5-consilium">Consilium — Comité d'investissement AI</a></li>
+                <li><a href="#6-model-routing">Model Routing — Gestion des modèles</a></li>
+                <li><a href="#7-qa-pipeline">QA Pipeline — Contrôle qualité</a></li>
+                <li><a href="#8-security-model">Security Model — Sécurité</a></li>
+                <li><a href="#9-structure-fichiers">Structure des fichiers du projet</a></li>
+                <li><a href="#10-scenarios-pratiques">Scénarios d'utilisation pratiques</a></li>
+                <li><a href="#11-analyse-interface">Analyse de l'interface</a></li>
+            </ul>
+
+            <p>---</p>
+
+            <h2>1. Aperçu Général</h2>
+
+            <h3>Qu'est-ce que c'est?</h3>
+
+            <p><strong>Auto-iFlow</strong> — une application macOS pour l'automatisation du développement utilisant des
+                agents AI. C'est un fork du projet <a href="https://github.com/AndyMik90/Auto-Claude">Auto-Claude</a>
+                (licence AGPL-3.0).</p>
+
+            <h3>Idée Clé</h3>
+
+            <p>Au lieu d'écrire manuellement du code pour chaque tâche, vous:</p>
+            <ul>
+                <li><strong>Créez une tâche</strong> dans le tableau Kanban (description + contexte)</li>
+                <li><strong>L'agent AI</strong> automatiquement:</li>
+                <li>Crée la spécification (`spec.md`)</li>
+                <li>Planifie l'implémentation (`implementation_plan.json`)</li>
+                <li>Écrit le code dans un environnement isolé (Sandbox)</li>
+                <li>Effectue le contrôle qualité automatique (QA)</li>
+                <li><strong>Vous vérifiez</strong> le résultat et fusionnez vers main</li>
+            </ul>
+
+            <h3>Trois Fonctionnalités Principales</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fonctionnalité</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Full Cycle Automation</strong></td>
+                        <td>De l'idée au code prêt pour la production</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sandbox Isolation</strong></td>
+                        <td>Chaque tâche s'exécute dans un Git worktree séparé — la branche main est protégée</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Consilium (AI Committee)</strong></td>
+                        <td>"Comité d'investissement" de 3 agents AI pour les décisions complexes</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>---</p>
+
+            <h2>2. Architecture du Système</h2>
+
+            <h3>Structure de Haut Niveau</h3>
+
+            <p>Auto-iFlow est construit sur <strong>Electron</strong> et se compose de deux processus:</p>
+
+            <pre><code>
+graph TB
+    subgraph Main["Main Process (Node.js)"]
+        IPC[IPC Handlers]
+        TM[Task Manager]
+        GIT[Git Operations]
+        QA[QA Engine]
+    end
+    
+    subgraph Renderer["Renderer Process (React)"]
+        KB[Kanban Board]
+        TD[Task Details]
+        SET[Settings]
+        RM[Roadmap/Ideation]
+    end
+    
+    subgraph External["External Integrations"]
+        AI[AI Models&lt;br/&gt;OpenRouter, GLM, Groq]
+        MCP[MCP Servers&lt;br/&gt;Context7, Linear, Browser]
+        MEM[Graphiti Memory]
+    end
+    
+    Renderer --&gt;|IPC| Main
+    Main --&gt;|API Calls| External
+</code></pre>
+
+            <h3>Composants Principaux</h3>
+
+            <h4>Main Process (Backend)</h4>
+
+            <p>Emplacement: `/Users/kostenchuksergey/Auto-iFlow/apps/frontend/src/main/`</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Composant</th>
+                        <th>Fichiers</th>
+                        <th>Fonction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>IPC Handlers</strong></td>
+                        <td>`ipc-handlers/task/`</td>
+                        <td>Traitement des commandes depuis l'UI (création tâches, start/stop, merge)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Task Manager</strong></td>
+                        <td>`task-manager.ts`</td>
+                        <td>Gestion du cycle de vie des tâches</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Git Operations</strong></td>
+                        <td>`ipc-handlers/task/worktree-handlers.ts`</td>
+                        <td>Travail avec les Git worktrees (Sandbox)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>QA Engine</strong></td>
+                        <td>Backend Python dans `apps/backend/qa/`</td>
+                        <td>Vérification automatique de la qualité du code</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h4>Renderer Process (Frontend)</h4>
+
+            <p>Emplacement: `/Users/kostenchuksergey/Auto-iFlow/apps/frontend/src/renderer/`</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Composant</th>
+                        <th>Dossier</th>
+                        <th>Fonction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Kanban Board</strong></td>
+                        <td>`components/kanban/`</td>
+                        <td>Visualisation des tâches (Planning, In-Progress, Review, Done)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Task Details</strong></td>
+                        <td>`components/task-detail/`</td>
+                        <td>Affichage des spécifications, plans, artefacts de tâche</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Settings</strong></td>
+                        <td>`components/settings/`</td>
+                        <td>Configuration des clés API, MCP, profils</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Roadmap</strong></td>
+                        <td>`components/roadmap/`</td>
+                        <td>Génération de roadmap.json depuis l'analyse AI du projet</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h4>Intégrations Externes</h4>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Intégration</th>
+                        <th>Objectif</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>OpenRouter/Groq/GLM</strong></td>
+                        <td>API pour l'exécution des requêtes AI (différents modèles pour différentes phases)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MCP Servers</strong></td>
+                        <td>Model Context Protocol — contexte étendu (Context7, Linear, Browser)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Graphiti Memory</strong></td>
+                        <td>Mémoire à long terme de l'agent AI</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>---</p>
+
+            <h2>3. Kanban Workflow</h2>
+
+            <h3>Cycle de Vie des Tâches</h3>
+
+            <p>Chaque tâche passe à travers les <strong>colonnes du tableau Kanban</strong>:</p>
+
+            <pre><code>
+graph LR
+    A[Planning] --&gt; B[In-Progress]
+    B --&gt; C[In-Review]
+    C --&gt; D[Project Review]
+    D --&gt; E[Done]
+    C --&gt; F[Failed]
+</code></pre>
+
+            <h3>Analyse Détaillée de Chaque Colonne</h3>
+
+            <h4>1. <strong>Planning</strong> (Planification)</h4>
+
+            <p><strong>Ce qui se passe:</strong></p>
+            <ul>
+                <li>L'utilisateur crée une tâche (description, contexte, captures d'écran)</li>
+                <li>La tâche entre dans Planning et attend le démarrage</li>
+            </ul>
+
+            <p><strong>Fichiers:</strong></p>
+            <ul>
+                <li>`.auto-iflow/specs/&lt;task-id&gt;/task_metadata.json` — métadonnées de la tâche</li>
+            </ul>
+
+            <p><strong>Actions utilisateur:</strong></p>
+            <ul>
+                <li>▶️ <strong>Start Task</strong> → la tâche passe à In-Progress</li>
+            </ul>
+
+            <p>---</p>
+
+            <h4>2. <strong>In-Progress</strong> (Exécution)</h4>
+
+            <p><strong>Ce qui se passe (automatiquement):</strong></p>
+
+            <p>##### Phase 1: Spec Generation (Création de la spécification)</p>
+            <p>L'agent AI analyse la description de la tâche et crée:</p>
+            <ul>
+                <li>`spec.md` — spécification détaillée</li>
+                <li>`requirements.json` — exigences structurées</li>
+            </ul>
+
+            <p>##### Phase 2: Planning (Planification de l'implémentation)</p>
+            <p>L'AI crée:</p>
+            <ul>
+                <li>`implementation_plan.json` — plan étape par étape avec les fichiers à modifier</li>
+            </ul>
+
+            <p>##### Phase 3: Coding (Écriture du code)</p>
+            <ul>
+                <li><strong>Si Sandbox activé:</strong> creation d'un Git worktree dans
+                    `.auto-iflow/worktrees/tasks/&lt;task-id&gt;/`</li>
+                <li>L'agent AI exécute le plan, écrit le code</li>
+                <li>Tous les changements sont <strong>isolés</strong> de la branche main</li>
+            </ul>
+
+            <p>##### Phase 4: QA (Contrôle qualité)</p>
+            <ul>
+                <li>Lancement du backend Python (`apps/backend/qa/`)</li>
+                <li>Vérification du code (qualité, sécurité, tests)</li>
+                <li>Génération de `qa_report.md`</li>
+            </ul>
+
+            <p><strong>Fichiers créés:</strong></p>
+            <pre><code>
+.auto-iflow/specs/&lt;task-id&gt;/
+├── spec.md
+├── requirements.json
+├── implementation_plan.json
+├── task_metadata.json
+└── qa_report.md
+</code></pre>
+
+            <p><strong>Transition:</strong> Après QA → <strong>In-Review</strong></p>
+
+            <p>---</p>
+
+            <h4>3. <strong>In-Review</strong> (Révision)</h4>
+
+            <p><strong>Ce qui se passe:</strong></p>
+            <ul>
+                <li>L'utilisateur vérifie les artefacts (spec, plan, qa_report)</li>
+                <li>Si Sandbox: visualisation du <strong>Merge Preview</strong> (diff main ← branche tâche)</li>
+            </ul>
+
+            <p><strong>Éléments UI:</strong></p>
+            <ul>
+                <li>📂 <strong>Files</strong> — artefacts de la tâche</li>
+                <li>🔀 <strong>Merge Preview</strong> — diff des changements</li>
+                <li>🛠️ <strong>Actions:</strong></li>
+                <li>✅ <strong>Approve & Merge</strong> → fusion vers main, nettoyage sandbox</li>
+                <li>🔁 <strong>Request Changes</strong> → retour à In-Progress</li>
+                <li>❌ <strong>Reject</strong> → Failed</li>
+            </ul>
+
+            <p><strong>Scénarios importants:</strong></p>
+
+            <blockquote>[!WARNING]</blockquote>
+            <blockquote><strong>Blocked Merge</strong> — si main dans sandbox est "sale" (uncommitted changes), la
+                fusion est bloquée.</blockquote>
+            <blockquote></blockquote>
+            <blockquote><strong>Fix actions</strong> (Stage 22):</blockquote>
+            <blockquote>- Auto-commit `.gitignore` si c'est le seul changement</blockquote>
+            <blockquote>- Menu Fix avec boutons: commit, stash, refresh preview</blockquote>
+
+            <p>---</p>
+
+            <h4>4. <strong>Project Review</strong> (Révision finale)</h4>
+
+            <p>Colonne optionnelle pour les tâches critiques (configurée dans project settings).</p>
+
+            <p>---</p>
+
+            <h4>5. <strong>Done</strong> (Terminé)</h4>
+
+            <p>Tâche terminée:</p>
+            <ul>
+                <li>Code fusionné vers main</li>
+                <li>Worktree Sandbox supprimé (si existait)</li>
+                <li>Artefacts sauvegardés dans `.auto-iflow/specs/&lt;task-id&gt;/`</li>
+            </ul>
+
+            <p>---</p>
+
+            <h4>6. <strong>Failed</strong> (Échoué)</h4>
+
+            <p>Tâche rejetée:</p>
+            <ul>
+                <li>Worktree Sandbox supprimé</li>
+                <li>Artefacts sauvegardés pour analyse</li>
+            </ul>
+
+            <p>---</p>
+
+            <h2>4. Sandbox Mode</h2>
+
+            <h3>Qu'est-ce que c'est?</h3>
+
+            <p><strong>Sandbox Mode</strong> — un mode où chaque tâche s'exécute dans un <strong>Git worktree
+                    isolé</strong>. Cela protège la branche main contre les "casses" pendant le développement.</p>
+
+            <h3>Comment Fonctionne Git Worktree?</h3>
+
+            <pre><code>
+# Git régulier (sans Sandbox)
+main/
+├── src/
+└── .git/
+
+# Avec Sandbox (Git Worktree)
+main/                          # ← branche principale (protégée)
+├── src/
+└── .git/
+
+.auto-iflow/worktrees/tasks/task-123/  # ← copie de travail séparée
+├── src/
+└── .git/
+</code></pre>
+
+            <p><strong>Avantages:</strong></p>
+            <ul>
+                <li>✅ <strong>Main toujours stable</strong> — les changements ne l'affectent pas</li>
+                <li>✅ <strong>Tests sécurisés</strong> — possibilité d'expérimenter</li>
+                <li>✅ <strong>Annulation facile</strong> — simplement supprimer le worktree</li>
+                <li>✅ <strong>Travail parallèle</strong> — plusieurs tâches simultanément</li>
+            </ul>
+
+            <h3>Cycle de Vie du Sandbox</h3>
+
+            <pre><code>
+sequenceDiagram
+    participant User
+    participant Main
+    participant Sandbox
+
+    User-&gt;&gt;Main: Start Task (Sandbox enabled)
+    Main-&gt;&gt;Sandbox: Create worktree&lt;br/&gt;.auto-iflow/worktrees/tasks/123
+    Sandbox-&gt;&gt;Sandbox: AI writes code (isolated)
+    Sandbox-&gt;&gt;Main: Merge Preview (diff)
+    User-&gt;&gt;Sandbox: Approve & Merge
+    Sandbox-&gt;&gt;Main: Git merge
+    Main-&gt;&gt;Sandbox: Delete worktree
+</code></pre>
+
+            <h3>Configuration</h3>
+
+            <p>Sandbox est activé via:</p>
+
+            <p><strong>1. Global settings</strong> (pour tous les projets):</p>
+            <pre><code>
+// Settings → Sandbox
+sandboxTasksEnabled: true
+</code></pre>
+
+            <p><strong>2. Environment variable</strong> (remplacement):</p>
+            <pre><code>
+export AUTO_IFLOW_SANDBOX_TASKS=true
+</code></pre>
+
+            <p><strong>3. Per-task</strong> (lors de la création de la tâche):</p>
+            <ul>
+                <li>Case à cocher "Enable Sandbox" dans Task Creation Wizard</li>
+            </ul>
+
+            <h3>Problèmes Connus (de TASKS.md)</h3>
+
+            <blockquote>[!CAUTION]</blockquote>
+            <blockquote><strong>Stage 22-23:</strong> Sandbox bloque parfois la fusion en raison d'un main "sale"
+            </blockquote>
+            <blockquote></blockquote>
+            <blockquote><strong>Raisons:</strong></blockquote>
+            <blockquote>- Le backend ajoute à `.gitignore` → main devient sale</blockquote>
+            <blockquote>- Après fusion, fichiers staged/unstaged restent (README, `.auto-iflow-status`)</blockquote>
+            <blockquote></blockquote>
+            <blockquote><strong>Solution (implémentée):</strong></blockquote>
+            <blockquote>- Auto-commit `.gitignore` si c'est le seul changement (preview + merge)</blockquote>
+            <blockquote>- Auto-commit tous les changements dans sandbox après fusion</blockquote>
+            <blockquote>- Menu Fix dans l'UI avec boutons de correction</blockquote>
+
+            <p>---</p>
+
+            <h2>5. Consilium</h2>
+
+            <h3>Qu'est-ce que c'est?</h3>
+
+            <p><strong>Consilium</strong> (du latin "conseil") — un <strong>Comité d'Investissement AI</strong> de 3
+                agents qui discutent des décisions architecturales complexes avant le début du développement.</p>
+
+            <h3>Pourquoi est-ce nécessaire?</h3>
+
+            <p>Pour les tâches à <strong>haut risque</strong> (breaking changes, architecture, migrations):</p>
+            <ul>
+                <li>❌ <strong>Sans Consilium:</strong> L'AI commence immédiatement à écrire du code → peut prendre la
+                    mauvaise direction</li>
+                <li>✅ <strong>Avec Consilium:</strong> discussion des approches d'abord → choix de la meilleure → code
+                </li>
+            </ul>
+
+            <h3>Membres du Comité</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rôle</th>
+                        <th>Fonction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Innovator</strong> (Innovateur)</td>
+                        <td>Propose différentes approches pour résoudre la tâche</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Realist</strong> (Réaliste)</td>
+                        <td>Évalue les risques, faisabilité, complexité d'implémentation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Facilitator</strong> (Facilitateur)</td>
+                        <td>Contrôle le focus de la discussion, résume les conclusions</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>Workflow</h3>
+
+            <pre><code>
+graph TD
+    A[Task starts] --&gt; B{High-risk?}
+    B --&gt;|Yes| C[Consilium Session]
+    B --&gt;|No| D[Direct to Spec]
+    
+    C --&gt; E[Innovator proposes approaches]
+    E --&gt; F[Realist evaluates risks]
+    F --&gt; G[Facilitator decides]
+    
+    G --&gt; H{Decision}
+    H --&gt;|Go| I[Spec → Plan → Code]
+    H --&gt;|Hold| J[Request more info]
+    H --&gt;|Revise| K[Refine approach]
+    H --&gt;|Kill| L[Reject task]
+</code></pre>
+
+            <h3>Résultats Consilium</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Décision</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Go</strong></td>
+                        <td>Transition vers Spec/Planning avec l'approche choisie</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hold</strong></td>
+                        <td>Tâche en pause — besoin de données supplémentaires</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Revise</strong></td>
+                        <td>L'approche nécessite un raffinement (nouvelle itération)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Kill</strong></td>
+                        <td>Tâche rejetée (trop risquée ou inopportune)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>Quand utiliser?</h3>
+
+            <ul>
+                <li>Changements architecturaux (nouveaux modules, refactoring)</li>
+                <li>Migrations (base de données, API)</li>
+                <li>Breaking changes (API publique)</li>
+                <li>Choix de technologies (bibliothèques, frameworks)</li>
+            </ul>
+
+            <h3>Configuration</h3>
+
+            <ul>
+                <li>Settings → Consilium → Enable for high-risk tasks</li>
+                <li>Case "Require Consilium approval" par tâche</li>
+            </ul>
+
+            <blockquote>[!NOTE]</blockquote>
+            <blockquote>Consilium est implémenté dans `apps/backend/consilium/` et intégré au cycle de vie des tâches
+                via les IPC handlers.</blockquote>
+
+            <p>---</p>
+
+            <h2>6. Model Routing</h2>
+
+            <h3>Qu'est-ce que c'est?</h3>
+
+            <p><strong>Model Routing</strong> — un système de sélection de <strong>différents modèles AI</strong> pour
+                différentes <strong>phases</strong> de développement et <strong>niveaux</strong> de configuration.</p>
+
+            <h3>Pourquoi?</h3>
+
+            <p>Différentes tâches nécessitent différents modèles:</p>
+            <ul>
+                <li><strong>Spec/Planning</strong> → modèle avec bon raisonnement (Claude Opus, GPT-4)</li>
+                <li><strong>Coding</strong> → modèle rapide avec grand contexte (Claude Sonnet, Gemini)</li>
+                <li><strong>QA</strong> → modèle focalisé sur l'analyse (GPT-4, Claude)</li>
+            </ul>
+
+            <h3>3 Niveaux de Configuration</h3>
+
+            <pre><code>
+graph TD
+    A[App-level config&lt;br/&gt;Defaults for all projects] --&gt; B{Project selected?}
+    B --&gt;|No| A
+    B --&gt;|Yes| C[Project-level config&lt;br/&gt;Override for specific project]
+    C --&gt; D{Task created?}
+    D --&gt;|No| C
+    D --&gt;|Yes| E[Task-level config&lt;br/&gt;Override for specific task]
+</code></pre>
+
+            <p><strong>Priorité:</strong> Task-level &gt; Project-level &gt; App-level</p>
+
+            <h4>1. App-level (Valeurs par défaut globales)</h4>
+
+            <p>Emplacement: Settings → Model Routing (global)</p>
+
+            <pre><code>
+{
+  "spec": {
+    "profile": "openrouter",
+    "model": "anthropic/claude-3-opus-20240229"
+  },
+  "planning": {
+    "profile": "openrouter",
+    "model": "anthropic/claude-3-5-sonnet-20241022"
+  },
+  "coding": {
+    "profile": "groq",
+    "model": "llama-3.3-70b-versatile"
+  },
+  "qa": {
+    "profile": "openrouter",
+    "model": "anthropic/claude-3-5-sonnet-20241022"
+  }
+}
+</code></pre>
+
+            <h4>2. Project-level (Remplacements par projet)</h4>
+
+            <p>Emplacement: `.auto-iflow/project_index.json`</p>
+
+            <pre><code>
+{
+  "project_id": "auto-iflow-main",
+  "modelRouting": {
+    "coding": {
+      "profile": "glm",
+      "model": "glm-4-flash"
+    }
+  }
+}
+</code></pre>
+
+            <h4>3. Task-level (Remplacements par tâche)</h4>
+
+            <p>Emplacement: `.auto-iflow/specs/&lt;task-id&gt;/task_metadata.json`</p>
+
+            <pre><code>
+{
+  "task_id": "task-123",
+  "modelRouting": {
+    "spec": {
+      "profile": "openrouter",
+      "model": "openai/gpt-4-turbo"
+    }
+  }
+}
+</code></pre>
+
+            <h3>4 Phases d'Exécution</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>Objectif</th>
+                        <th>Recommandation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Spec</strong></td>
+                        <td>Création de spécification</td>
+                        <td>Claude Opus (compréhension profonde)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Planning</strong></td>
+                        <td>Planification d'implémentation</td>
+                        <td>Claude Sonnet (équilibre vitesse/qualité)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Coding</strong></td>
+                        <td>Écriture de code</td>
+                        <td>Groq Llama 3.3 70B (vitesse) ou GLM-4-Flash</td>
+                    </tr>
+                    <tr>
+                        <td><strong>QA</strong></td>
+                        <td>Vérification de qualité</td>
+                        <td>Claude Sonnet (analyse de code)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>Profils API</h3>
+
+            <p>Emplacement: Settings → Integrations</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Profil</th>
+                        <th>Fournisseur</th>
+                        <th>Modèles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>openrouter</strong></td>
+                        <td>OpenRouter</td>
+                        <td>Claude, GPT-4, Gemini, etc.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>groq</strong></td>
+                        <td>Groq</td>
+                        <td>Llama 3.1/3.3, Mixtral</td>
+                    </tr>
+                    <tr>
+                        <td><strong>glm</strong></td>
+                        <td>GLM (Zhipu AI)</td>
+                        <td>GLM-4-Flash, GLM-4-Plus</td>
+                    </tr>
+                    <tr>
+                        <td><strong>custom</strong></td>
+                        <td>Endpoint personnalisé</td>
+                        <td>Toute API compatible OpenAI</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>Configuration des Coûts</h3>
+
+            <p>Chaque profil a des paramètres de <strong>limites de coûts</strong>:</p>
+
+            <pre><code>
+{
+  "profile": "openrouter",
+  "costLimits": {
+    "perTask": 0.50,      // max $0.50 par tâche
+    "perPhase": {
+      "spec": 0.10,
+      "planning": 0.10,
+      "coding": 0.20,
+      "qa": 0.10
+    }
+  }
+}
+</code></pre>
+
+            <blockquote>[!TIP]</blockquote>
+            <blockquote><strong>Best practice:</strong> Utilisez des modèles rapides/économiques (Groq, GLM) pour
+                Coding, chers/intelligents (Claude Opus) pour Spec/Planning.</blockquote>
+
+            <p>---</p>
+
+            <h2>7. QA Pipeline</h2>
+
+            <h3>Qu'est-ce que c'est?</h3>
+
+            <p><strong>QA Pipeline</strong> — vérification automatique du code après la phase Coding, avant Review.</p>
+
+            <h3>Architecture</h3>
+
+            <pre><code>
+graph LR
+    A[Code Complete] --&gt; B[QA Python Backend]
+    B --&gt; C[Code Quality]
+    B --&gt; D[Test Generation]
+    B --&gt; E[Security Scan]
+    B --&gt; F[Performance Check]
+    
+    C --&gt; G{Pass?}
+    D --&gt; G
+    E --&gt; G
+    F --&gt; G
+    
+    G --&gt;|Yes| H[Generate qa_report.md]
+    G --&gt;|No| I[Block merge]
+    
+    H --&gt; J[In-Review]
+</code></pre>
+
+            <h3>Composants QA</h3>
+
+            <p>Emplacement: `/Users/kostenchuksergey/Auto-iFlow/apps/backend/qa/`</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fichier</th>
+                        <th>Fonction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>`criteria.py`</td>
+                        <td>Définition des critères de qualité</td>
+                    </tr>
+                    <tr>
+                        <td>`loop.py`</td>
+                        <td>Boucle principale de vérification QA</td>
+                    </tr>
+                    <tr>
+                        <td>`test_graphiti.py`</td>
+                        <td>Tests pour l'intégration Graphiti</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>Vérifications Automatiques</h3>
+
+            <h4>1. Analyse de Qualité du Code</h4>
+            <ul>
+                <li>Linting (eslint, prettier)</li>
+                <li>Métriques de complexité</li>
+                <li>Détection de code smells</li>
+            </ul>
+
+            <h4>2. Génération de Tests</h4>
+            <ul>
+                <li>Génération de tests unitaires pour nouvelles fonctions</li>
+                <li>Analyse de couverture</li>
+            </ul>
+
+            <h4>3. Scan de Sécurité</h4>
+            <ul>
+                <li>Recherche de vulnérabilités (SQL injection, XSS)</li>
+                <li>Détection de secrets (mots de passe hardcodés, clés API)</li>
+            </ul>
+
+            <h4>4. Vérification de Performance</h4>
+            <ul>
+                <li>Optimisation des requêtes</li>
+                <li>Détection de fuites mémoire</li>
+            </ul>
+
+            <h3>Human Review Gate</h3>
+
+            <p>Pour les <strong>tâches critiques</strong> (breaking changes, sécurité) QA peut nécessiter <strong>Human
+                    Review</strong> avant fusion:</p>
+
+            <pre><code>
+{
+  "qa": {
+    "requireHumanReview": true,
+    "criticalChecks": ["security", "breaking-changes"]
+  }
+}
+</code></pre>
+
+            <h3>Rapport QA</h3>
+
+            <p>Résultat: `.auto-iflow/specs/&lt;task-id&gt;/qa_report.md`</p>
+
+            <p>Exemple de structure:</p>
+
+            <pre><code>
+# QA Report — Task-123
+
+## ✅ Passed Checks
+- Code Quality: 85/100
+- Tests: 12 generated, 12 passed
+- Security: No issues found
+
+## ⚠️ Warnings
+- Function `calculateTotal()` has high complexity (12)
+- Missing tests for edge case: empty array
+
+## 🛠️ Recommendations
+1. Refactor `calculateTotal()` into smaller functions
+2. Add test case for empty input
+
+## 🚀 Approval Status
+**APPROVED** — Safe to merge
+</code></pre>
+
+            <h3>Menu Fix (Stage 22)</h3>
+
+            <p>Si QA trouve des problèmes, l'UI affiche <strong>Fix Menu</strong> avec actions:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Problème</th>
+                        <th>Action Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Changements non committés</td>
+                        <td>Auto-commit `.gitignore`</td>
+                    </tr>
+                    <tr>
+                        <td>Tests échoués</td>
+                        <td>Afficher sortie des tests, suggérer corrections</td>
+                    </tr>
+                    <tr>
+                        <td>Problème de sécurité</td>
+                        <td>Bloquer fusion, afficher détails</td>
+                    </tr>
+                    <tr>
+                        <td>Conflits rebase</td>
+                        <td>Offrir résolution manuelle dans IDE</td>
+                    </tr>
+                </tbody>
+            </table>
+            <blockquote>[!IMPORTANT]</blockquote>
+            <blockquote><strong>Stage 24:</strong> Après approbation QA, le plan doit se synchroniser au statut
+                `human_review/review` pour que la tâche ne reste pas bloquée dans `in_progress` (UI affiche "Stuck").
+            </blockquote>
+
+            <p>---</p>
+
+            <h2>8. Security Model</h2>
+
+            <h3>Principes de Sécurité</h3>
+
+            <p>Auto-iFlow exécute du <strong>code AI-généré arbitraire</strong> sur votre machine. Pour protection:</p>
+
+            <pre><code>
+graph TB
+    A[AI Generated Code] --&gt; B[Layer 1: OS Sandbox]
+    B --&gt; C[Layer 2: Filesystem Restrictions]
+    C --&gt; D[Layer 3: Dynamic Command Allowlist]
+    D --&gt; E[Safe Execution]
+</code></pre>
+
+            <h3>Layer 1: OS Sandbox (isolation bash)</h3>
+
+            <p>Tout le code s'exécute dans une <strong>session bash restreinte</strong>:</p>
+            <ul>
+                <li>Pas d'accès au répertoire home (`~`)</li>
+                <li>Pas d'opérations réseau (sauf git)</li>
+                <li>Privilèges limités (pas de sudo)</li>
+            </ul>
+
+            <p>Emplacement: `apps/frontend/src/main/pty-daemon.ts`</p>
+
+            <h3>Layer 2: Restrictions Système de Fichiers</h3>
+
+            <p>L'AI peut seulement travailler <strong>dans le répertoire du projet</strong>:</p>
+
+            <pre><code>
+# ✅ Autorisé
+/Users/username/Auto-iFlow/src/...
+/Users/username/Auto-iFlow/.auto-iflow/...
+
+# ❌ Interdit
+/Users/username/Documents/...
+/etc/...
+/var/...
+</code></pre>
+
+            <p>Vérification dans `apps/frontend/src/main/ipc-handlers/task/worktree-handlers.ts`</p>
+
+            <h3>Layer 3: Liste Blanche de Commandes Dynamiques</h3>
+
+            <p>Seulement <strong>liste blanche de commandes</strong>:</p>
+
+            <pre><code>
+const ALLOWED_COMMANDS = [
+  'git',
+  'npm',
+  'yarn',
+  'node',
+  'python',
+  'python3',
+  // code editors
+  'code',
+  'vim',
+  'nano'
+];
+</code></pre>
+
+            <p><strong>Interdit:</strong></p>
+            <ul>
+                <li>`rm -rf /` (suppression de fichiers hors projet)</li>
+                <li>`sudo` (élévation de privilèges)</li>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>- `curl</th>
+                            <th>sh` (exécution de scripts distants)</th>
+                        </tr>
+                    </thead>
+                </table>
+            </ul>
+            <h3>Garanties de Sécurité</h3>
+
+            <blockquote>[!CAUTION]</blockquote>
+            <blockquote><strong>La sécurité n'est pas à 100%</strong> — L'AI peut trouver des moyens de contourner les
+                restrictions.</blockquote>
+            <blockquote></blockquote>
+            <blockquote><strong>Meilleures pratiques:</strong></blockquote>
+            <blockquote>- ✅ Toujours vérifier `qa_report.md` avant fusion</blockquote>
+            <blockquote>- ✅ Utiliser Sandbox pour tâches critiques</blockquote>
+            <blockquote>- ✅ Ne pas exécuter Auto-iFlow en tant que root/admin</blockquote>
+            <blockquote>- ✅ Vérifier régulièrement les logs: Settings → Logs</blockquote>
+
+            <p>---</p>
+
+            <h2>9. Structure des Fichiers</h2>
+
+            <h3>Projet Auto-iFlow</h3>
+
+            <pre><code>
+/Users/kostenchuksergey/Auto-iFlow/
+├── apps/
+│   ├── frontend/              # Electron app (Main + Renderer)
+│   │   ├── src/main/          # Node.js backend
+│   │   ├── src/renderer/      # React UI
+│   │   └── src/preload/       # IPC bridge
+│   └── backend/               # Python services
+│       ├── qa/                # QA Pipeline
+│       └── consilium/         # Consilium AI Committee
+├── .auto-iflow/               # Métadonnées projet
+│   ├── project_index.json     # Paramètres projet
+│   ├── specs/                 # Artefacts tâches
+│   ├── roadmap/               # Roadmap.json
+│   └── worktrees/tasks/       # Sandbox worktrees
+└── package.json
+</code></pre>
+
+            <h3>Artefacts de Tâche</h3>
+
+            <pre><code>
+.auto-iflow/specs/&lt;task-id&gt;/
+├── spec.md                    # Spécification
+├── requirements.json          # Exigences (structurées)
+├── implementation_plan.json   # Plan d'implémentation
+├── task_metadata.json         # Métadonnées (statut, modèles)
+└── qa_report.md              # Rapport QA
+</code></pre>
+
+            <h3>Fichiers de Configuration</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fichier</th>
+                        <th>Objectif</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>`.auto-iflow/project_index.json`</td>
+                        <td>Paramètres projet (Model Routing, Sandbox, Consilium)</td>
+                    </tr>
+                    <tr>
+                        <td>`~/.auto-iflow/graphs/`</td>
+                        <td>Base de données Graphiti (mémoire AI long terme)</td>
+                    </tr>
+                    <tr>
+                        <td>`~/.auto-iflow/profiles.json`</td>
+                        <td>Profils d'agents (Custom, Default, etc.)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>---</p>
+
+            <h2>10. Scénarios Pratiques</h2>
+
+            <h3>Scénario 1: Correction Rapide de Bug</h3>
+
+            <p><strong>Temps:</strong> 15 minutes</p>
+
+            <p><strong>Étapes:</strong></p>
+
+            <ul>
+                <li><strong>Créer une Tâche</strong></li>
+                <li>Kanban → New Task</li>
+                <li>Description: "Users report 500 error when submitting form with empty email"</li>
+                <li>Joindre capture d'écran (si disponible)</li>
+                <li>✅ Enable Sandbox</li>
+            </ul>
+
+            <ul>
+                <li><strong>AI Spec → Plan → Code</strong></li>
+                <li>L'AI analyse → crée `spec.md`</li>
+                <li>L'AI planifie → `implementation_plan.json`</li>
+                <li>L'AI écrit le code dans Sandbox worktree</li>
+            </ul>
+
+            <ul>
+                <li><strong>Auto QA</strong></li>
+                <li>Génération de tests pour validation email</li>
+                <li>Vérification sécurité (validation entrée)</li>
+                <li>Approbation QA → `qa_report.md`</li>
+            </ul>
+
+            <ul>
+                <li><strong>Human Review</strong></li>
+                <li>Files → vérifier `spec.md`, `implementation_plan.json`</li>
+                <li>Merge Preview → vérifier diff</li>
+                <li>✅ Approve & Merge</li>
+            </ul>
+
+            <ul>
+                <li><strong>Done</strong></li>
+                <li>Code dans main</li>
+                <li>Sandbox supprimé</li>
+                <li>Vérifier la correction manuellement</li>
+            </ul>
+
+            <p><strong>Résultat:</strong> ✅ Bug corrigé en 15 min au lieu de 2 heures</p>
+
+            <p>---</p>
+
+            <h3>Scénario 2: Développement de Fonctionnalité</h3>
+
+            <p><strong>Temps:</strong> 30-40 minutes</p>
+
+            <p><strong>Étapes:</strong></p>
+
+            <ul>
+                <li><strong>Importer depuis GitHub</strong></li>
+                <li>Settings → Integrations → GitHub → Import Issue #42</li>
+                <li>Auto-iFlow crée la tâche avec contexte complet</li>
+            </ul>
+
+            <ul>
+                <li><strong>Consilium Assessment</strong> (si complexe)</li>
+                <li>Case "Require Consilium"</li>
+                <li>3 agents AI discutent des approches</li>
+                <li>Choisir la meilleure → Go</li>
+            </ul>
+
+            <ul>
+                <li><strong>Spec + Planning</strong></li>
+                <li>L'AI crée une spécification détaillée</li>
+                <li>Plan avec changements de fichiers</li>
+            </ul>
+
+            <ul>
+                <li><strong>Sandbox Development</strong></li>
+                <li>L'AI écrit le code dans worktree isolé</li>
+                <li>Auto QA → tests, sécurité, performance</li>
+            </ul>
+
+            <ul>
+                <li><strong>Review → Merge</strong></li>
+                <li>Révision humaine des artefacts</li>
+                <li>Fusion vers main</li>
+                <li>Notes de version GitHub (auto-générées)</li>
+            </ul>
+
+            <p><strong>Résultat:</strong> ✅ Cycle complet en 30-40 min</p>
+
+            <p>---</p>
+
+            <h3>Scénario 3: Développement Piloté par Roadmap</h3>
+
+            <p><strong>Temps:</strong> 1 heure pour roadmap complète</p>
+
+            <p><strong>Étapes:</strong></p>
+
+            <ul>
+                <li><strong>Générer Roadmap Discovery</strong></li>
+                <li>Roadmap → Generate Discovery</li>
+                <li>L'AI analyse tout le projet (code, issues, docs)</li>
+                <li>Crée `roadmap_discovery.json`</li>
+            </ul>
+
+            <ul>
+                <li><strong>Générer Fonctionnalités</strong></li>
+                <li>L'AI suggère des fonctionnalités basées sur Discovery</li>
+                <li>Crée `roadmap.json` avec priorités</li>
+            </ul>
+
+            <ul>
+                <li><strong>Convertir en Tâches</strong></li>
+                <li>Sélectionner fonctionnalités → Convert to Tasks</li>
+                <li>Les tâches apparaissent dans Kanban → Planning</li>
+            </ul>
+
+            <ul>
+                <li><strong>Exécuter Tâches</strong></li>
+                <li>Chaque tâche passe par le cycle complet (Spec → Code → QA → Review)</li>
+            </ul>
+
+            <p><strong>Résultat:</strong> ✅ Planification stratégique automatisée</p>
+
+            <p>---</p>
+
+            <h2>11. Analyse de l'Interface</h2>
+
+            <h3>Panneau de Navigation Gauche</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Section</th>
+                        <th>Objectif</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Control Board</strong></td>
+                        <td>Tableau Kanban principal (Planning, In-Progress, Review, Done)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Agent Timelines</strong></td>
+                        <td>Historique des actions des agents AI par tâche</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Consilium</strong></td>
+                        <td>Lancer AI Investment Committee pour tâche actuelle</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Insights</strong></td>
+                        <td>Analytiques projet (goulets, productivité)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Roadmaps</strong></td>
+                        <td>Générer et gérer roadmap.json</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Random</strong></td>
+                        <td>Tâche aléatoire (pour inspiration)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Changelog</strong></td>
+                        <td>Historique des changements projet</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Connect</strong></td>
+                        <td>Intégrations (GitHub, Linear, Jira)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MCP Overview</strong></td>
+                        <td>Configurer serveurs MCP (Context7, Browser)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Workflows</strong></td>
+                        <td>Workflows personnalisés (automatisation custom)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Team</strong></td>
+                        <td>Gestion des accès (fonctionnalité future)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>Colonnes Kanban (depuis capture d'écran)</h3>
+
+            <pre><code>
+┌─────────────┬──────────────┬───────────┬────────────┬────────┬──────┐
+│  Planning   │ In-Progress  │ In-Review │ Proj Review│ Failed │ Done │
+├─────────────┼──────────────┼───────────┼────────────┼────────┼──────┤
+│ No tasks    │ Waiting      │ Waiting   │ No failed  │   -    │  -   │
+│ planned     │ to design    │ to design │ tasks      │        │      │
+└─────────────┴──────────────┴───────────┴────────────┴────────┴──────┘
+</code></pre>
+
+            <h3>Panneau de Détails de Tâche (côté droit)</h3>
+
+            <p>Quand vous sélectionnez une tâche:</p>
+
+            <p><strong>Onglets:</strong></p>
+            <ul>
+                <li><strong>Overview</strong> — description, statut, progression</li>
+                <li><strong>Files</strong> — artefacts (spec, plan, qa_report)</li>
+                <li><strong>Merge Preview</strong> — diff des changements (si Sandbox)</li>
+                <li><strong>Logs</strong> — logs d'exécution de l'agent AI</li>
+                <li><strong>Timeline</strong> — chronologie des actions</li>
+            </ul>
+
+            <p><strong>Actions:</strong></p>
+            <ul>
+                <li>▶️ Start / ⏸️ Pause / ⏹️ Stop</li>
+                <li>🔁 Request Changes</li>
+                <li>✅ Approve & Merge</li>
+                <li>❌ Reject</li>
+            </ul>
+
+            <p>---</p>
+
+            <h2>🎓 Prochaines Étapes pour l'Apprentissage</h2>
+
+            <p>Maintenant que vous comprenez l'architecture générale, je recommande <strong>d'étudier en
+                    détail</strong>:</p>
+
+            <h3>1. Étudier le Code Source par Blocs</h3>
+
+            <ul>
+                <li>[ ] <strong>Task lifecycle:</strong> `apps/frontend/src/main/task-manager.ts`</li>
+                <li>[ ] <strong>Sandbox worktrees:</strong>
+                    `apps/frontend/src/main/ipc-handlers/task/worktree-handlers.ts`</li>
+                <li>[ ] <strong>QA Pipeline:</strong> `apps/backend/qa/loop.py`, `criteria.py`</li>
+                <li>[ ] <strong>Model Routing:</strong> `apps/frontend/src/main/ipc-handlers/settings/model-routing.ts`
+                </li>
+                <li>[ ] <strong>Consilium:</strong> `apps/backend/consilium/` (si implémenté)</li>
+            </ul>
+
+            <h3>2. Lancer le Projet et Expérimenter</h3>
+
+            <pre><code>
+cd /Users/kostenchuksergey/Auto-iFlow
+npm run dev   # Mode développeur avec hot reload
+</code></pre>
+
+            <p><strong>Essayer:</strong></p>
+            <ul>
+                <li>Créer une tâche simple (sans Sandbox)</li>
+                <li>Créer une tâche avec Sandbox et voir le worktree</li>
+                <li>Voir les artefacts dans `.auto-iflow/specs/`</li>
+                <li>Étudier `qa_report.md` après QA</li>
+            </ul>
+
+            <h3>3. Étudier la Configuration du Projet</h3>
+
+            <ul>
+                <li>[ ] `.auto-iflow/project_index.json` — paramètres projet</li>
+                <li>[ ] Roadmap → Generate Discovery — voir comment l'AI analyse le projet</li>
+                <li>[ ] Settings → Model Routing — configurer vos modèles pour chaque phase</li>
+            </ul>
+
+            <h3>4. Parcourir les Tâches Actuelles (TASKS.md)</h3>
+
+            <ul>
+                <li>[ ] Stage 20: Sandbox adjustments (déjà fait dans 20.1-20.4)</li>
+                <li>[ ] Stage 21: Splash screen skip</li>
+                <li>[ ] Stage 22: Sandbox merge cleanup + Fix actions</li>
+                <li>[ ] Stage 23: Auto-commit after merge</li>
+                <li>[ ] Stage 24: QA approval sync</li>
+            </ul>
+
+            <p>---</p>
+
+            <h2>📚 Ressources Supplémentaires</h2>
+
+            <ul>
+                <li><a
+                        href="file:///Users/kostenchuksergey/Library/CloudStorage/OneDrive-Личная/AUTO-IFLOW/NEW-PLANS/CONTEXT.md">CONTEXT.md</a>
+                    — historique projet, problèmes connus</li>
+                <li><a
+                        href="file:///Users/kostenchuksergey/Library/CloudStorage/OneDrive-Личная/AUTO-IFLOW/NEW-PLANS/TASKS.md">TASKS.md</a>
+                    — tâches actuelles (Stages 16-24)</li>
+                <li><a
+                        href="file:///Users/kostenchuksergey/Library/CloudStorage/OneDrive-Личная/AUTO-IFLOW/NEW-PLANS/NEW-CONCIL.md">NEW-CONCIL.md</a>
+                    — description détaillée Consilium</li>
+                <li><a
+                        href="file:///Users/kostenchuksergey/Library/CloudStorage/OneDrive-Личная/AUTO-IFLOW/NEW-PLANS/BUILD-CREDENTIALS.md">BUILD-CREDENTIALS.md</a>
+                    — build et credentials</li>
+            </ul>
+
+            <p>---</p>
+
+            <h2>❓ Questions d'Auto-Vérification</h2>
+
+            <p>Essayez de répondre à ces questions pour vérifier la compréhension:</p>
+
+            <ul>
+                <li><strong>Architecture:</strong> Quels sont les deux processus principaux dans Auto-iFlow et de quoi
+                    sont-ils responsables?</li>
+                <li><strong>Kanban:</strong> Quelles phases traverse une tâche de la création à Done?</li>
+                <li><strong>Sandbox:</strong> Pourquoi Git worktree est-il nécessaire et quand l'utiliser?</li>
+                <li><strong>Consilium:</strong> Quels rôles composent le AI Investment Committee?</li>
+                <li><strong>Model Routing:</strong> Quelle est la différence entre configuration App-level,
+                    Project-level, Task-level?</li>
+                <li><strong>QA Pipeline:</strong> Quelles vérifications automatiques s'exécutent avant Review?</li>
+                <li><strong>Security:</strong> Quelles sont les 3 couches de protection dans Auto-iFlow?</li>
+            </ul>
+
+            <p>---</p>
+
+            <p><strong>Prêt pour la pratique?</strong> Créons une tâche test et parcourons le cycle complet ensemble! 🚀
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

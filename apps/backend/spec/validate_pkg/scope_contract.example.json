@@ -1,0 +1,24 @@
+{
+  "intent": "change",
+  "outcome": "Ensure the task runs only in the main app code and preserves UI behavior.",
+  "where": "apps/frontend/src/main",
+  "why": "The feature belongs to the main Electron process, not the design system.",
+  "when": "During app startup and task execution.",
+  "acceptance": [
+    "Changes are limited to allowed paths.",
+    "Feature works as described in the spec."
+  ],
+  "test_plan": [
+    "npm test",
+    "npm run test:backend"
+  ],
+  "allowed_paths": [
+    "apps/frontend/src/main/**"
+  ],
+  "forbidden_paths": [
+    ".design-system/**"
+  ],
+  "candidate_files": [
+    "apps/frontend/src/main/ipc-handlers/task/**"
+  ]
+}
