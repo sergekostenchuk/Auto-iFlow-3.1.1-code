@@ -101,10 +101,10 @@ AI-powered terminals with one-click task context injection. Spawn multiple agent
 
 ![Agent Terminals](.github/assets/Auto-iFlow-Agents-terminals.png)
 
-### Roadmap
-AI-assisted feature planning with competitor analysis and audience targeting.
+### Smart Intake
+Smart Intake evaluates whether a task is implementation-ready, identifies real blockers, runs targeted clarification rounds, and unlocks task creation only when scope is actionable.
 
-![Roadmap](.github/assets/Auto-iFlow-roadmap.png)
+![Smart Intake](.github/assets/Auto-iFlow-Smart-Intake.png)
 
 ### Quality Guardrails
 Pre-code scope checks and post-code tests are visible inside each task.
